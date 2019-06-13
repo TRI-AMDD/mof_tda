@@ -29,7 +29,7 @@ def lattice_param(filepath : str) -> List[float]:
                 c = float(newLine[8][:-1])
     return[a,b,c]
 
-def copies_to_fill_cell(cellSize: int, filepath : str, lattice_param: List[float]) -> List[float]:
+def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[float]) -> List[float]:
     """
     Have a cubic cell, and fill in periodic copies up to the target cell cize
     Create periodic copies of each cell until past the target size, and then remove
@@ -71,10 +71,10 @@ def copies_to_fill_cell(cellSize: int, filepath : str, lattice_param: List[float
 
     #Filter out all atoms outside of the cubic box
     #Keep axes at -10 to include negative xyz coordinates from the original cell
-    newCell = xyz_periodic_total[np.max(xyz_periodic_total, axis = 1) < cellSize]
-    newCell = newCell[np.min(newCell, axis = 1) > -10]
+    new_cell = xyz_periodic_total[np.max(xyz_periodic_total, axis = 1) < cell_size]
+    new_cell = new_cell[np.min(new_cell, axis = 1) > -10]
 
-    return newCell
+    return new_cell
 
 if __name__ == '__main__':
-    latticeCsts = lattice_param(filepath[0])
+    lattice_csts = lattice_param(filepath[0])

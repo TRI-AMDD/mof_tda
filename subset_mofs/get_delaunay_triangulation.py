@@ -63,7 +63,6 @@ def is_simplicial(f : Any) -> None:
     Arg:
         f: filtration
     """
-
     for s in f:
         if len(s) != len(set(s)):
             print("%s is not a simplex" % s)
@@ -76,9 +75,9 @@ if __name__=="__main__":
     xyz_file = filepaths[0]
     print(xyz_file)
     print(type(xyz_file))
-    latticeCsts = lattice_param(filepaths[0])
+    lattice_csts = lattice_param(filepaths[0])
     #create 100x100x100 cell
-    newCell = copies_to_fill_cell(90, filepaths[0], latticeCsts)
-    simplices = get_delaunay_simplices(newCell)
+    new_cell = copies_to_fill_cell(90, filepaths[0], lattice_csts)
+    simplices = get_delaunay_simplices(new_cell)
     dgms = get_persistence(simplices)
     print(dgms)
