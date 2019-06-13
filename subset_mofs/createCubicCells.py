@@ -10,7 +10,7 @@ with open(mof_files,'r') as f:
         stripped_line = line[:-4] #strip .cif off
         filepath.append(stripped_line + ".xyz")
 
-def latticeParam(filepath) -> List[float]:
+def latticeParam(filepath : str) -> List[float]:
     """
     Return lattice constants for each crystal structure
     Note: this can be replaced with pymatgen
