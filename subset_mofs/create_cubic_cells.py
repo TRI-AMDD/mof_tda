@@ -1,8 +1,10 @@
+import os
 from typing import List, Tuple
+from subset_mofs import MOF_TDA_PATH
 import numpy as np
 from matplotlib import pyplot as plt
 
-MOF_FILES = 'subset_mof_list.txt'
+MOF_FILES = os.path.join(MOF_TDA_PATH, 'subset_mof_list.txt')
 filepath = []
 with open(MOF_FILES,'r') as f:
     for line in f:
