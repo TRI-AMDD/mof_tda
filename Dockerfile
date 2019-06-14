@@ -17,7 +17,7 @@ RUN source /opt/conda/bin/activate mof_tda
 
 # Update mysql/postgres
 RUN apt-get update
-RUN apt-get install -y libcgal-dev cmake gcc
+RUN apt-get install -y libcgal-dev cmake gcc g++
 
 COPY . /home/mof_tda
 
