@@ -32,6 +32,15 @@ class LatticeTest(unittest.TestCase):
             output_coords = copies_to_fill_cell(100, 'out.xyz', lattice_params)
             self.assertEqual(len(output_coords), 50 ** 3 * 4)
 
+        # Try with primitive cell
+        with ScratchDir('.'):
+            aaa = AseAtomsAdaptor()
+            atoms = aaa.get_atoms(structure.get_primitive_structure())
+            write_xyz("out.xyz", atoms)
+            lattice_params = lattice_param('out.xyz')
+            output_coords = copies_to_fill_cell(100, 'out.xyz', lattice_params)
+
+
     def test_test_pymatgen(self):
         from subset_mofs.test_pymatgen import get_coordinates
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(2.0), ["Ni"],
@@ -39,6 +48,12 @@ class LatticeTest(unittest.TestCase):
         self.assertEqual(len(structure), 4)
         with ScratchDir('.'):
             structure.to(filename="out.cif")
+            size = 100
+            output_coords = get_coordinates(size, 'out.cif')
+            self.assertEqual(len(output_coords), (size / 2) ** 3 * 4)
+
+        with ScratchDir('.'):
+            structure.get_primitive_structure().to(filename="out.cif")
             size = 100
             output_coords = get_coordinates(size, 'out.cif')
             self.assertEqual(len(output_coords), (size / 2) ** 3 * 4)
