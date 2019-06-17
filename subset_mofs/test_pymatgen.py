@@ -26,7 +26,7 @@ def get_coordinates(filepath, lattice_csts):
                 if x == 0 and y == 0 and z == 0: continue
                 xyz_periodic_copies.append(xyz + lattice_csts*xyz)
     """
-    structure.create_supercell(3,3,3) 
+    supercell = structure.make_supercell([3,3,3])
 
     #Combine into one array
     xyz_periodic_total = np.vstack(xyz_periodic_copies)
@@ -39,7 +39,7 @@ def get_coordinates(filepath, lattice_csts):
 
     print(len(xyz))
     print(len(new_cell))
-
+    print(len(supercell))
 
 if __name__ == '__main__':
     lattice_csts = lattice_param('00958972.2016.1250260_1436516_clean.cif')
