@@ -71,11 +71,8 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
             for z in range(0, 20):
                 if x == 0 and y == 0 and z == 0: continue
     #           xyz_periodic_copies.append(xyz + [x*a, y*b, z*c])
-                transform1 = xyz + x*a
-                transform2 = transform1 + y*b
-                transform3 = transform2 + z*c
-                xyz_periodic_copies.append(transform3)
-
+                add_vector = x*a + y*b + z*c
+                xyz_periodic_copies.append(xyz + add_vector)
     #Combine into one array
     xyz_periodic_total = np.vstack(xyz_periodic_copies)
 
