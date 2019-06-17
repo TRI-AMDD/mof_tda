@@ -26,10 +26,14 @@ def lattice_param(filepath : str) -> List[float]:
         for i, line in enumerate(xyz):
             if i == 1:
                 newLine = line.split()
-                a = float(newLine[0][9::]) #remove Lattice=" part
-                b = float(newLine[4])
-                c = float(newLine[8][:-1])
-    return[a,b,c]
+#                a = float(newLine[0][9::]) #remove Lattice=" part
+                row_1 = np.array([float(newLine[0][9::]), float(newLine[1]), float(newLine[2])])
+                row_2 = np.array([float(newLine[3]), float(newLine[4]), float(newLine[5])])
+                row_3 = np.array([float(newLine[6]), float(newLine[7]), float(newLine[8][:-1])])
+#                b = float(newLine[4])
+#                c = float(newLine[8][:-1])
+#    return[a,b,c]
+    return[row_1, row_2, row_3]
 
 def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[float]) -> List[float]:
     """
@@ -48,6 +52,8 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
     with open(filepath) as f:
         data = f.readlines()
 
+    a,b,c = lattice_param
+
     #Read in the initial file
     data = data[2:] #strip the first 2 lines before the coordinates
     rows = [line.split() for line in data]
@@ -60,13 +66,15 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
     #append initial xyz coordinates
     xyz_periodic_copies.append(xyz)
 
-    a,b,c = lattice_param
-
-    for x in range(-3, 20):
-        for y in range(-3, 20):
-            for z in range(-3, 20):
+    for x in range(0, 20):
+        for y in range(0, 20):
+            for z in range(0, 20):
                 if x == 0 and y == 0 and z == 0: continue
-                xyz_periodic_copies.append(xyz + [x*a, y*b, z*c])
+    #           xyz_periodic_copies.append(xyz + [x*a, y*b, z*c])
+                transform1 = xyz + x*a
+                transform2 = transform1 + y*b
+                transform3 = transform2 + z*c
+                xyz_periodic_copies.append(transform3)
 
     #Combine into one array
     xyz_periodic_total = np.vstack(xyz_periodic_copies)
@@ -74,9 +82,12 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
     #Filter out all atoms outside of the cubic box
     #Keep axes at -10 to include negative xyz coordinates from the original cell
     new_cell = xyz_periodic_total[np.max(xyz_periodic_total, axis = 1) < cell_size]
-    new_cell = new_cell[np.min(new_cell, axis = 1) > -10]
+    new_cell = new_cell[np.min(new_cell, axis = 1) > -3]
 
     return new_cell
 
 if __name__ == '__main__':
     lattice_csts = lattice_param(filepath[0])
+    #print(lattice_csts)
+    new_cell = copies_to_fill_cell(80, filepath[0], lattice_csts)
+    print(len(new_cell))
