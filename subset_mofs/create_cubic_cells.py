@@ -49,6 +49,7 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
     Returns:
         nxnxn cubic cell with coordinates
     """
+    import nose; nose.tools.set_trace()
     with open(filepath) as f:
         data = f.readlines()
 
@@ -66,13 +67,14 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
     #append initial xyz coordinates
     xyz_periodic_copies.append(xyz)
 
-    for x in range(0, 20):
-        for y in range(0, 20):
-            for z in range(0, 20):
+    for x in range(0, 100):
+        for y in range(0, 100):
+            for z in range(0, 100):
                 if x == 0 and y == 0 and z == 0: continue
     #           xyz_periodic_copies.append(xyz + [x*a, y*b, z*c])
                 add_vector = x*a + y*b + z*c
                 xyz_periodic_copies.append(xyz + add_vector)
+    import nose; nose.tools.set_trace()
     #Combine into one array
     xyz_periodic_total = np.vstack(xyz_periodic_copies)
 
@@ -86,10 +88,14 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
 if __name__ == '__main__':
     lattice_csts = lattice_param(filepath[0])
     print(lattice_csts)
-    new_cell = copies_to_fill_cell(10, filepath[0], lattice_csts)
+    size = 100
+    new_cell = copies_to_fill_cell(size, filepath[0], lattice_csts)
     print(len(new_cell))
     from pymatgen import Structure, Lattice
-    from pymatgen.utils.coordinates import find_in_coord_list_pbc
-    ccc_struct = Structure(Lattice.cubic(10), ["C"]*len(new_cell), new_cell, coords_are_cartesian=True).to(filename="ccc_output_10.cif")
-    pmg_struct = Structure.from_file("tpmg_output_10.cif")
-    for coord in
+    from pymatgen.util.coord import find_in_coord_list_pbc
+    ccc_struct = Structure(Lattice.cubic(size), ["C"]*len(new_cell),
+                           new_cell, coords_are_cartesian=True)
+    ccc_struct.to(filename="ccc_output_{}.cif".format(size))
+    print(ccc_struct.density)
+    # pmg_struct = Structure.from_file("tpmg_output_10.cif")
+    # for coord in
