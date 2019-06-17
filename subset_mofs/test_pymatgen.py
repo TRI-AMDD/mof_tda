@@ -27,12 +27,12 @@ def get_coordinates(filepath, lattice_csts):
                 if x == 0 and y == 0 and z == 0: continue
                 xyz_periodic_copies.append(xyz + lattice_csts*xyz)
     """
-    import nose; nose.tools.set_trace()
     scaling_matrix = lattice.get_fractional_coords(np.eye(3) * 100)
-    supercell = structure.make_supercell(scaling_matrix)
+    super_structure = structure.copy()
+    super_structure.make_supercell(np.ceil(scaling_matrix))
 
     #Combine into one array
-    xyz_periodic_total = np.vstack(xyz_periodic_copies)
+    xyz_periodic_total = super_structure.cart_coords# np.vstack(xyz_periodic_copies)
 
     #Filter out all atoms outside of the cubic box, include atoms just below 0
     new_cell = xyz_periodic_total[np.max(xyz_periodic_total, axis = 1) < 80]
@@ -42,7 +42,7 @@ def get_coordinates(filepath, lattice_csts):
 
     print(len(xyz))
     print(len(new_cell))
-    print(len(supercell))
+    print(len(super_structure))
 
 if __name__ == '__main__':
     lattice_csts = lattice_param('00958972.2016.1250260_1436516_clean.cif')
