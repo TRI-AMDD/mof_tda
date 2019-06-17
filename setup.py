@@ -1,20 +1,20 @@
 from setuptools import setup, find_packages
 
 
+# TODO: specify dependency
 setup(name="mof_tda",
       packages=find_packages(),
-      # TODO: figure out cython/ripser install
-      # TODO: add diode install
-      install_requires=["numpy",
-                        # "Cython",
-                        "scipy",
-                        "pymatgen",
-                        "cmake",
-                        "ase",
-                        # "cgal",
+      setup_requires=["Cython",
+                      "numpy",
+                      ],
+      install_requires=["scipy",
                         "diode",
                         "dionysus",
                         "persim",
-                        # "ripser",
-                        "matplotlib"],
+                        "ripser",
+                        "matplotlib",
+                        "pymatgen",
+                        "ase",
+                        ],
+      dependency_links=['git+ssh://git@github.com/mrzv/diode#egg=diode']
       )
