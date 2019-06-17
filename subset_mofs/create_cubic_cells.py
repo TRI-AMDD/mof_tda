@@ -85,6 +85,11 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
 
 if __name__ == '__main__':
     lattice_csts = lattice_param(filepath[0])
-    #print(lattice_csts)
-    new_cell = copies_to_fill_cell(80, filepath[0], lattice_csts)
+    print(lattice_csts)
+    new_cell = copies_to_fill_cell(10, filepath[0], lattice_csts)
     print(len(new_cell))
+    from pymatgen import Structure, Lattice
+    from pymatgen.utils.coordinates import find_in_coord_list_pbc
+    ccc_struct = Structure(Lattice.cubic(10), ["C"]*len(new_cell), new_cell, coords_are_cartesian=True).to(filename="ccc_output_10.cif")
+    pmg_struct = Structure.from_file("tpmg_output_10.cif")
+    for coord in

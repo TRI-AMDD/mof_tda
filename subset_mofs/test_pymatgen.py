@@ -30,12 +30,14 @@ def get_coordinates(filepath, lattice_csts):
     scaling_matrix = lattice.get_fractional_coords(np.eye(3) * 80)
     super_structure = structure.copy()
     super_structure.make_supercell(np.ceil(scaling_matrix))
+    print(scaling_matrix)
+    print(lattice.matrix)
 
     #Combine into one array
     xyz_periodic_total = super_structure.cart_coords# np.vstack(xyz_periodic_copies)
 
     #Filter out all atoms outside of the cubic box, include atoms just below 0
-    new_cell = xyz_periodic_total[np.max(xyz_periodic_total, axis = 1) < 80]
+    new_cell = xyz_periodic_total[np.max(xyz_periodic_total, axis = 1) < 10]
     new_cell = new_cell[np.min(new_cell, axis = 1) > -3]
 
     new_cell += np.random.standard_normal(new_cell.shape) * .00001
@@ -43,7 +45,10 @@ def get_coordinates(filepath, lattice_csts):
     print(len(xyz))
     print(len(new_cell))
     print(len(super_structure))
+    return new_cell
 
 if __name__ == '__main__':
     lattice_csts = lattice_param('00958972.2016.1250260_1436516_clean.cif')
-    get_coordinates('00958972.2016.1250260_1436516_clean.cif', lattice_csts)
+    new_cell = get_coordinates('00958972.2016.1250260_1436516_clean.cif', lattice_csts)
+    from pymatgen import Structure, Lattice
+    Structure(Lattice.cubic(10), ["C"]*len(new_cell), new_cell, coords_are_cartesian=True).to(filename="tpmg_output_10.cif")
