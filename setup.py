@@ -1,16 +1,18 @@
 from setuptools import setup, find_packages
 
 
+# TODO: specify dependency
 setup(name="mof_tda",
       packages=find_packages(),
-      install_requires=["numpy",
-                        "scipy",
-                        "cmake",
-                        "cgal",
+      setup_requires=["Cython",
+                      "numpy",
+                      ],
+      install_requires=["scipy",
                         "diode",
-			"dionysus",
+                        "dionysus",
                         "persim",
                         "ripser",
-                        "matplotlib"]
-	)
-
+                        "matplotlib",
+                        ],
+      dependency_links=['git+ssh://git@github.com/mrzv/diode#egg=diode']
+      )
