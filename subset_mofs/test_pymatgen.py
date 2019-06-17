@@ -27,7 +27,7 @@ def get_coordinates(filepath, lattice_csts):
                 if x == 0 and y == 0 and z == 0: continue
                 xyz_periodic_copies.append(xyz + lattice_csts*xyz)
     """
-    scaling_matrix = lattice.get_fractional_coords(np.eye(3) * 100)
+    scaling_matrix = lattice.get_fractional_coords(np.eye(3) * 80)
     super_structure = structure.copy()
     super_structure.make_supercell(np.ceil(scaling_matrix))
 
@@ -36,7 +36,7 @@ def get_coordinates(filepath, lattice_csts):
 
     #Filter out all atoms outside of the cubic box, include atoms just below 0
     new_cell = xyz_periodic_total[np.max(xyz_periodic_total, axis = 1) < 80]
-    new_cell = new_cell[np.min(new_cell, axis = 1) > -2]
+    new_cell = new_cell[np.min(new_cell, axis = 1) > -3]
 
     new_cell += np.random.standard_normal(new_cell.shape) * .00001
 

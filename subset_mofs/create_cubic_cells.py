@@ -75,8 +75,11 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
     #Keep axes at -10 to include negative xyz coordinates from the original cell
     new_cell = xyz_periodic_total[np.max(xyz_periodic_total, axis = 1) < cell_size]
     new_cell = new_cell[np.min(new_cell, axis = 1) > -10]
+    print(len(new_cell))
 
     return new_cell
 
 if __name__ == '__main__':
-    lattice_csts = lattice_param(filepath[0])
+    # lattice_csts = lattice_param(filepath[0])
+    lattice_csts = lattice_param('00958972.2016.1250260_1436516_clean.xyz')
+    copies_to_fill_cell(80, '00958972.2016.1250260_1436516_clean.xyz', lattice_csts)
