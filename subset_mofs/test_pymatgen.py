@@ -14,6 +14,7 @@ def lattice_param(filepath : str) -> List[float]:
 
 def get_coordinates(filepath, lattice_csts):
     structure = Structure.from_file(filepath)
+    lattice = structure.lattice
     xyz = structure.cart_coords
     xyz_periodic_copies = []
 
@@ -26,7 +27,9 @@ def get_coordinates(filepath, lattice_csts):
                 if x == 0 and y == 0 and z == 0: continue
                 xyz_periodic_copies.append(xyz + lattice_csts*xyz)
     """
-    supercell = structure.make_supercell([3,3,3])
+    import nose; nose.tools.set_trace()
+    scaling_matrix = lattice.get_fractional_coords(np.eye(3) * 100)
+    supercell = structure.make_supercell(scaling_matrix)
 
     #Combine into one array
     xyz_periodic_total = np.vstack(xyz_periodic_copies)
