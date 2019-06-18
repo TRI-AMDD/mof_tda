@@ -16,5 +16,5 @@ setup(name="mof_tda",
                         "pymatgen",
                         "ase",
                         ],
-      dependency_links=['git+ssh://git@github.com/mrzv/diode#egg=diode']
+      dependency_links=['http://github.com/mrzv/diode/tarball/master#egg=diode']
       )
