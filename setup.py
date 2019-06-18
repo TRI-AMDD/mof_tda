@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 setup(name="mof_tda",
       packages=find_packages(),
       setup_requires=["Cython",
-                      "numpy",
+                      "numpy==1.15",
                       ],
       install_requires=["scipy",
                         "diode",
