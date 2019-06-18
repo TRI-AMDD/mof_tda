@@ -28,6 +28,7 @@ def get_coordinates(size, filepath, lattice_csts=None):
     else:
         structure = Structure.from_file(filepath)
     lattice = structure.lattice
+    print(lattice)
     xyz = structure.cart_coords
     xyz_periodic_copies = []
 

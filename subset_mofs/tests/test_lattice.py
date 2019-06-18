@@ -1,5 +1,6 @@
 import unittest
 import os
+import numpy as np
 
 from subset_mofs import MOF_TDA_PATH
 from subset_mofs.create_cubic_cells import lattice_param
@@ -15,9 +16,9 @@ class LatticeTest(unittest.TestCase):
         cif_file = os.path.join(MOF_TDA_PATH, "00958972.2016.1250260_1436516_clean.cif")
         lattice_csts = lattice_param(xyz_file)
         structure = Structure.from_file(cif_file)
-        self.assertEqual(lattice_csts[0], structure.lattice.a)
-        self.assertEqual(lattice_csts[1], structure.lattice.b)
-        self.assertEqual(lattice_csts[2], structure.lattice.c)
+        self.assertAlmostEqual(np.linalg.norm(lattice_csts[0]), structure.lattice.a)
+        self.assertAlmostEqual(np.linalg.norm(lattice_csts[1]), structure.lattice.b)
+        self.assertAlmostEqual(np.linalg.norm(lattice_csts[2]), structure.lattice.c)
 
     def test_create_cubic_cell(self):
         from subset_mofs.create_cubic_cells import copies_to_fill_cell
@@ -29,8 +30,9 @@ class LatticeTest(unittest.TestCase):
             atoms = aaa.get_atoms(structure)
             write_xyz("out.xyz", atoms)
             lattice_params = lattice_param('out.xyz')
-            output_coords = copies_to_fill_cell(100, 'out.xyz', lattice_params)
-            self.assertEqual(len(output_coords), 50 ** 3 * 4)
+            size = 100
+            output_coords = copies_to_fill_cell(size, 'out.xyz', lattice_params)
+            self.assertEqual(len(output_coords), (size/2) ** 3 * 4)
 
         # Try with primitive cell
         with ScratchDir('.'):
@@ -38,9 +40,9 @@ class LatticeTest(unittest.TestCase):
             atoms = aaa.get_atoms(structure.get_primitive_structure())
             write_xyz("out.xyz", atoms)
             lattice_params = lattice_param('out.xyz')
-            output_coords = copies_to_fill_cell(100, 'out.xyz', lattice_params)
+            output_coords = copies_to_fill_cell(size, 'out.xyz', lattice_params)
 
-
+    @unittest.skip
     def test_test_pymatgen(self):
         from subset_mofs.test_pymatgen import get_coordinates
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(2.0), ["Ni"],

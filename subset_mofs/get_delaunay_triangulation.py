@@ -71,10 +71,8 @@ def is_simplicial(f : Any) -> None:
                 print("%s in boundary of %s not found in the filtration" % (sb, s))
 
 if __name__=="__main__":
-    print(filepaths)
     xyz_file = filepaths[0]
     print(xyz_file)
-    print(type(xyz_file))
     lattice_csts = lattice_param(filepaths[0])
     #create 100x100x100 cell
     new_cell = copies_to_fill_cell(90, filepaths[0], lattice_csts)

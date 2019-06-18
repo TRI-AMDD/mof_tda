@@ -49,7 +49,7 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
     Returns:
         nxnxn cubic cell with coordinates
     """
-    import nose; nose.tools.set_trace()
+    #import nose; nose.tools.set_trace()
     with open(filepath) as f:
         data = f.readlines()
 
@@ -74,21 +74,20 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
     #           xyz_periodic_copies.append(xyz + [x*a, y*b, z*c])
                 add_vector = x*a + y*b + z*c
                 xyz_periodic_copies.append(xyz + add_vector)
-    import nose; nose.tools.set_trace()
     #Combine into one array
     xyz_periodic_total = np.vstack(xyz_periodic_copies)
 
     #Filter out all atoms outside of the cubic box
     #Keep axes at -10 to include negative xyz coordinates from the original cell
     new_cell = xyz_periodic_total[np.max(xyz_periodic_total, axis = 1) < cell_size]
-    new_cell = new_cell[np.min(new_cell, axis = 1) > -3]
+    new_cell = new_cell[np.min(new_cell, axis = 1) > -10]
 
     return new_cell
 
 if __name__ == '__main__':
     lattice_csts = lattice_param(filepath[0])
     print(lattice_csts)
-    size = 100
+    size = 50
     new_cell = copies_to_fill_cell(size, filepath[0], lattice_csts)
     print(len(new_cell))
     from pymatgen import Structure, Lattice
@@ -96,6 +95,6 @@ if __name__ == '__main__':
     ccc_struct = Structure(Lattice.cubic(size), ["C"]*len(new_cell),
                            new_cell, coords_are_cartesian=True)
     ccc_struct.to(filename="ccc_output_{}.cif".format(size))
-    print(ccc_struct.density)
+    #print(ccc_struct.density)
     # pmg_struct = Structure.from_file("tpmg_output_10.cif")
     # for coord in
