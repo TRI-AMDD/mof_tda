@@ -1,8 +1,10 @@
+import os
 from typing import List, Tuple
+from mof_tda import MOF_TDA_PATH
 import numpy as np
 from matplotlib import pyplot as plt
 
-MOF_FILES = 'subset_mof_list.txt'
+MOF_FILES = os.path.join(MOF_TDA_PATH, 'subset_mof_list.txt')
 filepath = []
 with open(MOF_FILES,'r') as f:
     for line in f:
@@ -24,10 +26,14 @@ def lattice_param(filepath : str) -> List[float]:
         for i, line in enumerate(xyz):
             if i == 1:
                 newLine = line.split()
-                a = float(newLine[0][9::]) #remove Lattice=" part
-                b = float(newLine[4])
-                c = float(newLine[8][:-1])
-    return[a,b,c]
+#                a = float(newLine[0][9::]) #remove Lattice=" part
+                row_1 = np.array([float(newLine[0][9::]), float(newLine[1]), float(newLine[2])])
+                row_2 = np.array([float(newLine[3]), float(newLine[4]), float(newLine[5])])
+                row_3 = np.array([float(newLine[6]), float(newLine[7]), float(newLine[8][:-1])])
+#                b = float(newLine[4])
+#                c = float(newLine[8][:-1])
+#    return[a,b,c]
+    return[row_1, row_2, row_3]
 
 def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[float]) -> List[float]:
     """
@@ -43,8 +49,11 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
     Returns:
         nxnxn cubic cell with coordinates
     """
+    #import nose; nose.tools.set_trace()
     with open(filepath) as f:
         data = f.readlines()
+
+    a,b,c = lattice_param
 
     #Read in the initial file
     data = data[2:] #strip the first 2 lines before the coordinates
@@ -58,14 +67,13 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
     #append initial xyz coordinates
     xyz_periodic_copies.append(xyz)
 
-    a,b,c = lattice_param
-
-    for x in range(-3, 20):
-        for y in range(-3, 20):
-            for z in range(-3, 20):
+    for x in range(0, 100):
+        for y in range(0, 100):
+            for z in range(0, 100):
                 if x == 0 and y == 0 and z == 0: continue
-                xyz_periodic_copies.append(xyz + [x*a, y*b, z*c])
-
+    #           xyz_periodic_copies.append(xyz + [x*a, y*b, z*c])
+                add_vector = x*a + y*b + z*c
+                xyz_periodic_copies.append(xyz + add_vector)
     #Combine into one array
     xyz_periodic_total = np.vstack(xyz_periodic_copies)
 
@@ -78,3 +86,15 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
 
 if __name__ == '__main__':
     lattice_csts = lattice_param(filepath[0])
+    print(lattice_csts)
+    size = 50
+    new_cell = copies_to_fill_cell(size, filepath[0], lattice_csts)
+    print(len(new_cell))
+    from pymatgen import Structure, Lattice
+    from pymatgen.util.coord import find_in_coord_list_pbc
+    ccc_struct = Structure(Lattice.cubic(size), ["C"]*len(new_cell),
+                           new_cell, coords_are_cartesian=True)
+    ccc_struct.to(filename="ccc_output_{}.cif".format(size))
+    #print(ccc_struct.density)
+    # pmg_struct = Structure.from_file("tpmg_output_10.cif")
+    # for coord in
