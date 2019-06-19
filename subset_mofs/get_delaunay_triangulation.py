@@ -3,7 +3,7 @@ import hashlib #debugging
 from typing import (Any, Set, List, Tuple, Dict, Optional, TextIO)
 import dionysus as d
 import diode
-from create_cubic_cells import copies_to_fill_cell, lattice_param
+from subset_mofs.create_cubic_cells import copies_to_fill_cell, lattice_param
 
 MOF_FILES = 'subset_mof_list.txt'
 filepaths = []

@@ -1,7 +1,10 @@
+import os
 import ase
 import ase.io
 
-zeoliteFiles = "subset_mof_list.txt"
+from subset_mofs import MOF_TDA_PATH
+
+zeoliteFiles = os.path.join(MOF_TDA_PATH, "subset_mof_list.txt")
 
 with open(zeoliteFiles, "r") as f:
     for line in f:
