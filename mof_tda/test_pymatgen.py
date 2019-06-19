@@ -1,5 +1,5 @@
 from pymatgen import Structure, Molecule
-from subset_mofs.create_cubic_cells import lattice_param as lattice_param_xyz
+from mof_tda.create_cubic_cells import lattice_param as lattice_param_xyz
 import numpy as np
 from typing import List, Tuple
 from pymatgen.analysis.structure_matcher import StructureMatcher

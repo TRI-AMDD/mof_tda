@@ -3,7 +3,7 @@ import ase
 import ase.io
 import os
 from typing import List
-from subset_mofs import MOF_TDA_PATH
+from mof_tda import MOF_TDA_PATH
 
 def cif2xyz(structure_list : str) -> None:
     """

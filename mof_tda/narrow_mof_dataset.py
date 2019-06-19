@@ -1,7 +1,7 @@
 from typing import List, Tuple
 import numpy as np
 import pickle
-from subset_mofs import MOF_TDA_PATH
+from mof_tda import MOF_TDA_PATH
 import os
 
 MOF_FILES = 'allMOFs_without_disorder.txt'

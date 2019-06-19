@@ -2,8 +2,8 @@ import unittest
 import os
 import numpy as np
 
-from subset_mofs import MOF_TDA_PATH
-from subset_mofs.create_cubic_cells import lattice_param
+from mof_tda import MOF_TDA_PATH
+from mof_tda.create_cubic_cells import lattice_param
 from pymatgen import Structure, Lattice
 from monty.tempfile import ScratchDir
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -21,7 +21,7 @@ class LatticeTest(unittest.TestCase):
         self.assertAlmostEqual(np.linalg.norm(lattice_csts[2]), structure.lattice.c)
 
     def test_create_cubic_cell(self):
-        from subset_mofs.create_cubic_cells import copies_to_fill_cell
+        from mof_tda.create_cubic_cells import copies_to_fill_cell
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(2.0), ["Ni"],
                                               [[0, 0, 0]])
         self.assertEqual(len(structure), 4)
@@ -44,7 +44,7 @@ class LatticeTest(unittest.TestCase):
 
     @unittest.skip
     def test_test_pymatgen(self):
-        from subset_mofs.test_pymatgen import get_coordinates
+        from mof_tda.test_pymatgen import get_coordinates
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(2.0), ["Ni"],
                                               [[0, 0, 0]])
         self.assertEqual(len(structure), 4)

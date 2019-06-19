@@ -3,11 +3,11 @@ import os
 import numpy as np
 import pickle
 
-from subset_mofs import MOF_TDA_PATH
-from subset_mofs.narrow_mof_dataset import get_lowest_volumes
-from subset_mofs.cif2xyz_ase import cif2xyz
-from subset_mofs.create_cubic_cells import copies_to_fill_cell, lattice_param
-from subset_mofs.get_delaunay_triangulation import get_delaunay_simplices, get_persistence
+from mof_tda import MOF_TDA_PATH
+from mof_tda.narrow_mof_dataset import get_lowest_volumes
+from mof_tda.cif2xyz_ase import cif2xyz
+from mof_tda.create_cubic_cells import copies_to_fill_cell, lattice_param
+from mof_tda.get_delaunay_triangulation import get_delaunay_simplices, get_persistence
 from pymatgen import Structure, Lattice
 from monty.tempfile import ScratchDir
 from pymatgen.io.ase import AseAtomsAdaptor

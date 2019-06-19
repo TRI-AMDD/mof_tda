@@ -1,6 +1,6 @@
 import os
 from typing import List, Tuple
-from subset_mofs import MOF_TDA_PATH
+from mof_tda import MOF_TDA_PATH
 import numpy as np
 from matplotlib import pyplot as plt
 

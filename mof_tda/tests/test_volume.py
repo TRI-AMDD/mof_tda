@@ -3,8 +3,8 @@ import os
 import numpy as np
 import pickle
 
-from subset_mofs import MOF_TDA_PATH
-from subset_mofs.narrow_mof_dataset import get_lowest_volumes
+from mof_tda import MOF_TDA_PATH
+from mof_tda.narrow_mof_dataset import get_lowest_volumes
 from pymatgen import Structure, Lattice
 from monty.tempfile import ScratchDir
 from pymatgen.io.ase import AseAtomsAdaptor
