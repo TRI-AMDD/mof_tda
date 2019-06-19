@@ -18,10 +18,10 @@ class VolumeTest(unittest.TestCase):
                 line = line.strip()
                 filepath.append(line)
 
-        total_volume = pickle.load(open('tot_volume.pkl', 'rb'))
+        total_volume = pickle.load(open(os.path.join(MOF_TDA_PATH, 'tot_volume.pkl'), 'rb'))
         minimum_index = total_volume.index(min(total_volume))
         filepath_min = filepath[minimum_index]
-        
+
         #returns a list
         new_mof_list = get_lowest_volumes(1, total_volume, filepath)
 

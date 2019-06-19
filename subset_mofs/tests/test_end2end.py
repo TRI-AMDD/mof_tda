@@ -20,10 +20,10 @@ class EndToEndTest(unittest.TestCase):
             for line in f:
                 line = line.strip()
                 filepath.append(line)
-        total_volume = pickle.load(open('tot_volume.pkl', 'rb'))
+        total_volume = pickle.load(open(os.path.join(MOF_TDA_PATH,'tot_volume.pkl'), 'rb'))
         lowest_mof_list = get_lowest_volumes(1, total_volume, filepath)
         #also generates a file that can be read by ase
-        cif2xyz('mof_structures.txt')
+        cif2xyz(os.path.join(MOF_TDA_PATH,'mof_structures.txt'))
 
         filepaths = []
         MOF_FILES = os.path.join(MOF_TDA_PATH, 'mof_structures.txt')
