@@ -1,11 +1,14 @@
 import numpy as np
 import hashlib #debugging
+import os
 from typing import (Any, Set, List, Tuple, Dict, Optional, TextIO)
 import dionysus as d
 import diode
 from subset_mofs.create_cubic_cells import copies_to_fill_cell, lattice_param
+from subset_mofs import MOF_TDA_PATH
 
-MOF_FILES = 'subset_mof_list.txt'
+MOF_FILES = os.path.join(MOF_TDA_PATH, 'subset_mof_list.txt')
+
 filepaths = []
 with open(MOF_FILES,'r') as f:
     for line in f:
