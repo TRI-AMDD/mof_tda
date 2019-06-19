@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 setup(name="mof_tda",
       packages=find_packages(),
       setup_requires=["Cython",
-                      "numpy",
+                      "numpy==1.15",
                       ],
       install_requires=["scipy",
                         "diode",
@@ -16,5 +16,5 @@ setup(name="mof_tda",
                         "pymatgen",
                         "ase",
                         ],
-      dependency_links=['git+ssh://git@github.com/mrzv/diode#egg=diode']
+      dependency_links=['http://github.com/mrzv/diode/tarball/master#egg=diode']
       )
