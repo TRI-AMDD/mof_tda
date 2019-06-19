@@ -1,10 +1,12 @@
 from typing import List, Tuple
 import numpy as np
 import pickle
+from subset_mofs import MOF_TDA_PATH
+import os
 
 MOF_FILES = 'allMOFs_without_disorder.txt'
 filepath = []
-with open(MOF_FILES,'r') as f:
+with open(os.path.join(MOF_TDA_PATH, MOF_FILES),'r') as f:
     for line in f:
         line = line.strip()
         filepath.append(line)
