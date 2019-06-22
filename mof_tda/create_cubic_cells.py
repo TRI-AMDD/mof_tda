@@ -82,6 +82,8 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
     new_cell = xyz_periodic_total[np.max(xyz_periodic_total, axis = 1) < cell_size]
     new_cell = new_cell[np.min(new_cell, axis = 1) > -10]
 
+    new_cell += np.random.standard_normal(new_cell.shape) * .00001
+
     return new_cell
 
 if __name__ == '__main__':
@@ -92,9 +94,9 @@ if __name__ == '__main__':
     print(len(new_cell))
     from pymatgen import Structure, Lattice
     from pymatgen.util.coord import find_in_coord_list_pbc
-    ccc_struct = Structure(Lattice.cubic(size), ["C"]*len(new_cell),
-                           new_cell, coords_are_cartesian=True)
-    ccc_struct.to(filename="ccc_output_{}.cif".format(size))
+    #ccc_struct = Structure(Lattice.cubic(size), ["C"]*len(new_cell),
+    #                       new_cell, coords_are_cartesian=True)
+    #ccc_struct.to(filename="ccc_output_{}.cif".format(size))
     #print(ccc_struct.density)
     # pmg_struct = Structure.from_file("tpmg_output_10.cif")
     # for coord in
