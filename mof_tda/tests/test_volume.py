@@ -23,7 +23,7 @@ class VolumeTest(unittest.TestCase):
         filepath_min = filepath[minimum_index]
 
         #returns a list
-        new_mof_list = get_lowest_volumes(1, total_volume, filepath)
+        new_mof_list, sorted_lowest_n = get_lowest_volumes(1, total_volume, filepath)
 
         self.assertEqual(filepath_min, new_mof_list[0])
 
