@@ -12,6 +12,7 @@ from pymatgen import Structure, Lattice
 from monty.tempfile import ScratchDir
 from pymatgen.io.ase import AseAtomsAdaptor
 from ase.io.xyz import write_xyz
+from multiprocessing import Pool
 
 def main(i : int, num_structures : int) -> Any:
     """
@@ -54,13 +55,31 @@ def main(i : int, num_structures : int) -> Any:
     new_cell = copies_to_fill_cell(cubic_cell_dimension, calculation_filepath[i], lattice_csts)
     simplices = get_delaunay_simplices(new_cell)
     dgms = get_persistence(simplices)
+    current_file = current_file[:-4]
+    pickle.dump(dgms, open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' + current_file), "wb"))
     return dgms, current_file
 
 if __name__ == '__main__':
-    num_structures = 1 #Number of structures to run calculation on
+    from functools import partial
+    from tqdm import tqdm
+    num_structures = 8
+    persistence = partial(main, num_structures = 8)
+    with Pool(processes =4) as pool:
+    #    import nose; nose.tools.set_trace()
+        results = list(tqdm(pool.imap(persistence, np.arange(0, num_structures)), total = num_structures))
+    #    results = pool.map(persistence, np.arange(0, num_structures))
+    """
+    for dgms, filename in results:
+        filename = filename[:-4]
+        #pickle the persistence diagram
+        pickle.dump(dgms, open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' + filename), "wb"))
+    """
+    """
+    num_structures = 4 #Number of structures to run calculation on
     for i in range(num_structures):
         print(i)
-        persistence_diagram, current_file = main(i, 1)
+        persistence_diagram, current_file = main(i, num_structures)
         current_file = current_file[:-4]#strip the .xyz part
         #pickle the persistence diagram
         pickle.dump(persistence_diagram, open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' + current_file), "wb"))
+    """
