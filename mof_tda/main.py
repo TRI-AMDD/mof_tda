@@ -69,11 +69,11 @@ def main(xyz_file) -> Any:
         with open(os.path.join(MOF_TDA_PATH, "able_to_compute.txt"), "a+") as able:
             able.write("%s\n" % (current_file))
         pickle.dump(dgms, open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' + current_file), "wb"))
+        return dgms
     except:
         with open(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt"), "a+") as unable:
             unable.write("%s\n" % (current_file))
         pass
-    return dgms
 
 if __name__ == '__main__':
     #rm compute/unable to compute files
