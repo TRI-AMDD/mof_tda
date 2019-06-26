@@ -53,7 +53,8 @@ def main(xyz_file) -> Any:
     Arg: xyz_file is the name of an xyz structure (which is stored in 'xyz_structures')
 
     Return: persistence diagram from Delaunay triangulation, current file name
-    """    #Point to xyz_structures directory
+    """
+    #Point to xyz_structures directory
     os.chdir(os.path.join(MOF_TDA_PATH, 'xyz_structures/'))
     cubic_cell_dimension = 100
     current_file = xyz_file
@@ -65,16 +66,21 @@ def main(xyz_file) -> Any:
         dgms = get_persistence(simplices)
         current_file = current_file[:-4]
         print(current_file)
-        with open("able_to_compute.txt", "w+") as able:
+        with open(os.path.join(MOF_TDA_PATH, "able_to_compute.txt"), "a+") as able:
             able.write("%s\n" % (current_file))
         pickle.dump(dgms, open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' + current_file), "wb"))
     except:
-        with open("unable_to_compute.txt", "w+") as unable:
+        with open(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt"), "a+") as unable:
             unable.write("%s\n" % (current_file))
         pass
     return dgms
 
 if __name__ == '__main__':
+    #rm compute/unable to compute files
+    if os.path.exists(os.path.join(MOF_TDA_PATH, "able_to_compute.txt")) == True:
+        os.remove(os.path.join(MOF_TDA_PATH, "able_to_compute.txt"))
+    if os.path.exists(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt")) == True:
+        os.remove(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt"))
     num_structures = 8
     calculation_filepath = get_xyz_structures(num_structures)
     from tqdm import tqdm
