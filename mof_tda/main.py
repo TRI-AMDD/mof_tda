@@ -58,21 +58,21 @@ def main(xyz_file) -> Any:
     os.chdir(os.path.join(MOF_TDA_PATH, 'xyz_structures/'))
     cubic_cell_dimension = 100
     current_file = xyz_file
-    lattice_csts = lattice_param(xyz_file)
-    new_cell = copies_to_fill_cell(cubic_cell_dimension, xyz_file, lattice_csts)
-    simplices = get_delaunay_simplices(new_cell)
-    simplices = take_square_root(simplices)
     try:
+        lattice_csts = lattice_param(xyz_file)
+        new_cell = copies_to_fill_cell(cubic_cell_dimension, xyz_file, lattice_csts)
+        simplices = get_delaunay_simplices(new_cell)
+        simplices = take_square_root(simplices)
         dgms = get_persistence(simplices)
         current_file = current_file[:-4]
         print(current_file)
+        pickle.dump(dgms, open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' + current_file), "wb"))
         with open(os.path.join(MOF_TDA_PATH, "able_to_compute.txt"), "a+") as able:
             able.write("%s\n" % (current_file))
-        pickle.dump(dgms, open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' + current_file), "wb"))
         return dgms
-    except:
+    except Exception as exception:
         with open(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt"), "a+") as unable:
-            unable.write("%s\n" % (current_file))
+            unable.write("{}: {}\n".format(current_file, exception))
         pass
 
 if __name__ == '__main__':
@@ -83,9 +83,13 @@ if __name__ == '__main__':
         os.remove(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt"))
     num_structures = 8
     calculation_filepath = get_xyz_structures(num_structures)
+    #print(calculation_filepath.index('UXOWIO_clean.xyz'))
+    #print(main(calculation_filepath[11]))
+
     from tqdm import tqdm
     with Pool(processes = 4) as pool:
         persistence = list(tqdm(pool.imap(main, calculation_filepath), total = num_structures))
+
     """
     #not parallelized
     for i in range(num_structures):
