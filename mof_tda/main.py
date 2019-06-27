@@ -2,6 +2,8 @@ import os
 import numpy as np
 import pickle
 from typing import List, Tuple, Any
+import sys
+from memory_profiler import profile
 
 from mof_tda import MOF_TDA_PATH
 from mof_tda.narrow_mof_dataset import get_lowest_volumes
@@ -46,6 +48,7 @@ def get_xyz_structures(num_structures : int) -> List[str]:
             calculation_filepath.append(stripped_line + ".xyz")
     return calculation_filepath
 
+#@profile
 def main(xyz_file) -> Any:
     """
     Execute main code for function by reading an xyz file and returning persistence diagram
@@ -69,7 +72,9 @@ def main(xyz_file) -> Any:
         pickle.dump(dgms, open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' + current_file), "wb"))
         with open(os.path.join(MOF_TDA_PATH, "able_to_compute.txt"), "a+") as able:
             able.write("%s\n" % (current_file))
-        return dgms
+        #return none so output isn't stored in memorymkdir one
+        del dgms
+        return None
     except Exception as exception:
         with open(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt"), "a+") as unable:
             unable.write("{}: {}\n".format(current_file, exception))
@@ -81,14 +86,15 @@ if __name__ == '__main__':
         os.remove(os.path.join(MOF_TDA_PATH, "able_to_compute.txt"))
     if os.path.exists(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt")) == True:
         os.remove(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt"))
-    num_structures = 8
+    num_structures = 4
     calculation_filepath = get_xyz_structures(num_structures)
-    #print(calculation_filepath.index('UXOWIO_clean.xyz'))
-    #print(main(calculation_filepath[11]))
-
+    #calculation_filepath = ['XOSQOL_clean.xyz', 'FAQYUR_clean.xyz', 'S2053229616015515_yp3128sup1_clean.xyz', 'IZEVAM_clean.xyz']
+    #print(calculation_filepath.index('TAQYER_clean.xyz'))
+    #print(main(calculation_filepath[216]))
     from tqdm import tqdm
     with Pool(processes = 4) as pool:
         persistence = list(tqdm(pool.imap(main, calculation_filepath), total = num_structures))
+        #size = sys.getsizeof(persistence)
 
     """
     #not parallelized
