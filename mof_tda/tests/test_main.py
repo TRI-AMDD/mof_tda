@@ -5,7 +5,7 @@ import pickle
 
 from mof_tda import MOF_TDA_PATH
 from mof_tda.narrow_mof_dataset import get_lowest_volumes
-from mof_tda.cif2xyz_ase import cif2xyz
+from mof_tda.convert_structure import convert_cif_to_xyz
 from mof_tda.create_cubic_cells import copies_to_fill_cell, lattice_param
 from mof_tda.get_delaunay_triangulation import get_delaunay_simplices, get_persistence
 from mof_tda.main import main

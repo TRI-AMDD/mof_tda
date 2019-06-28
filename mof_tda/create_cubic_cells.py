@@ -2,15 +2,15 @@ import os
 from typing import List, Tuple
 from mof_tda import MOF_TDA_PATH
 import numpy as np
-from matplotlib import pyplot as plt
 
 MOF_FILES = os.path.join(MOF_TDA_PATH, 'subset_mof_list.txt')
-filepath = []
+filepaths = []
 with open(MOF_FILES,'r') as f:
     for line in f:
         line = line.strip()
         stripped_line = line[:-4] #strip .cif off
-        filepath.append(stripped_line + ".xyz")
+        filepaths.append(stripped_line + ".xyz")
+
 
 def lattice_param(filepath : str) -> List[float]:
     """

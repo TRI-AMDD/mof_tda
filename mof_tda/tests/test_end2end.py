@@ -5,7 +5,7 @@ import pickle
 
 from mof_tda import MOF_TDA_PATH
 from mof_tda.narrow_mof_dataset import get_lowest_volumes
-from mof_tda.cif2xyz_ase import cif2xyz
+from mof_tda.convert_structure import convert_cif_to_xyz
 from mof_tda.create_cubic_cells import copies_to_fill_cell, lattice_param
 from mof_tda.get_delaunay_triangulation import get_delaunay_simplices, get_persistence
 from pymatgen import Structure, Lattice
@@ -23,7 +23,7 @@ class EndToEndTest(unittest.TestCase):
         total_volume = pickle.load(open(os.path.join(MOF_TDA_PATH,'tot_volume.pkl'), 'rb'))
         lowest_mof_list = get_lowest_volumes(1, total_volume, filepath)
         #also generates a file that can be read by ase
-        cif2xyz(os.path.join(MOF_TDA_PATH,'mof_structures.txt'))
+        convert_cif_to_xyz(os.path.join(MOF_TDA_PATH, 'mof_structures.txt'))
 
         filepaths = []
         MOF_FILES = os.path.join(MOF_TDA_PATH, 'mof_structures.txt')

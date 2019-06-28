@@ -5,7 +5,7 @@ from typing import List, Tuple, Any
 
 from mof_tda import MOF_TDA_PATH
 from mof_tda.narrow_mof_dataset import get_lowest_volumes
-from mof_tda.cif2xyz_ase import cif2xyz
+from mof_tda.convert_structure import convert_cif_to_xyz
 from mof_tda.create_cubic_cells import copies_to_fill_cell, lattice_param
 from mof_tda.get_delaunay_triangulation import get_delaunay_simplices, get_persistence
 from pymatgen import Structure, Lattice
@@ -38,7 +38,7 @@ def main(i : int, num_structures : int) -> Any:
     cubic_cell_dimension = 100
 
     #MOF files to be used are printed out to "mof_structures.txt": convert to xyz
-    cif2xyz(os.path.join(MOF_TDA_PATH, 'mof_structures.txt'))
+    convert_cif_to_xyz(os.path.join(MOF_TDA_PATH, 'mof_structures.txt'))
 
     calculation_filepath = []
     MOF_FILES = os.path.join(MOF_TDA_PATH, 'mof_structures.txt')

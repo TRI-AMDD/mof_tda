@@ -5,7 +5,11 @@ import os
 from typing import List
 from mof_tda import MOF_TDA_PATH
 
-def cif2xyz(structure_list : str) -> None:
+
+# TODO: the structure_list parameter seems unnecessary here,
+#   let's refactor to take in a directory that contains cif files
+#   then use glob to get a list of all cif files in that directory
+def convert_cif_to_xyz(structure_list : str) -> None:
     """
     Converts cif files to xyz files
     Arg: name of file containing all the cif structures
@@ -22,4 +26,4 @@ def cif2xyz(structure_list : str) -> None:
             ase.io.write(os.path.join(MOF_TDA_PATH, './xyz_structures/' + stripped_line + '.xyz'), atoms)
 
 if __name__ == '__main__':
-    cif2xyz('subset_mof_list.txt')
+    convert_cif_to_xyz('subset_mof_list.txt')
