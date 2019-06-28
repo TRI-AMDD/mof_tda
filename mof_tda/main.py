@@ -1,20 +1,21 @@
 import os
 import numpy as np
 import pickle
-from typing import List, Tuple, Any
+from typing import Any
+from functools import partial
+from tqdm import tqdm
 
 from mof_tda import MOF_TDA_PATH
 from mof_tda.narrow_mof_dataset import get_lowest_volumes
 from mof_tda.convert_structure import convert_cif_to_xyz
 from mof_tda.create_cubic_cells import copies_to_fill_cell, lattice_param
 from mof_tda.get_delaunay_triangulation import get_delaunay_simplices, get_persistence
-from pymatgen import Structure, Lattice
-from monty.tempfile import ScratchDir
-from pymatgen.io.ase import AseAtomsAdaptor
-from ase.io.xyz import write_xyz
 from multiprocessing import Pool
 
-def main(i : int, num_structures : int) -> Any:
+
+# TODO: rename this file and function to something descriptive of what it's doing.
+#       "main" as a function title is very rarely necessary in python
+def main(i : int, num_structures: int) -> Any:
     """
     Execute main code for function
 
@@ -22,6 +23,8 @@ def main(i : int, num_structures : int) -> Any:
 
     Return: persistence diagram from Delaunay triangulation, current file name
     """
+    # TODO: similarly here, replace the intermediate text files with glob commands for getting
+    #       filenames
     filepath = []
     PATH_NAME = 'allMOFs_without_disorder.txt'
     with open(os.path.join(MOF_TDA_PATH, PATH_NAME),'r') as f:
@@ -29,26 +32,26 @@ def main(i : int, num_structures : int) -> Any:
             line = line.strip()
             filepath.append(line)
 
-    #Pre-processing to get volume distribution of MOFs
+    # Pre-processing to get volume distribution of MOFs
     total_volume = pickle.load(open(os.path.join(MOF_TDA_PATH,'tot_volume.pkl'), 'rb'))
     lowest_mof_list, volumes = get_lowest_volumes(num_structures, total_volume, filepath)
 
-    #Use the largest volume to decide number of periodic copies
-    #cubic_cell_dimension = np.ceil(((volumes[-1])**(1/3))*4)
+    # Use the largest volume to decide number of periodic copies
+    # cubic_cell_dimension = np.ceil(((volumes[-1])**(1/3))*4)
     cubic_cell_dimension = 100
 
-    #MOF files to be used are printed out to "mof_structures.txt": convert to xyz
+    # MOF files to be used are printed out to "mof_structures.txt": convert to xyz
     convert_cif_to_xyz(os.path.join(MOF_TDA_PATH, 'mof_structures.txt'))
 
     calculation_filepath = []
-    MOF_FILES = os.path.join(MOF_TDA_PATH, 'mof_structures.txt')
-    with open(MOF_FILES,'r') as f:
+    mof_files = os.path.join(MOF_TDA_PATH, 'mof_structures.txt')
+    with open(mof_files,'r') as f:
         for line in f:
             line = line.strip()
-            stripped_line = line[:-4] #strip .cif off
+            stripped_line = line[:-4]  # strip .cif off
             calculation_filepath.append(stripped_line + ".xyz")
 
-    #Point to xyz_structures directory
+    # point to xyz_structures directory
     os.chdir(os.path.join(MOF_TDA_PATH, 'xyz_structures/'))
     current_file = calculation_filepath[i]
     lattice_csts = lattice_param(calculation_filepath[i])
@@ -59,15 +62,13 @@ def main(i : int, num_structures : int) -> Any:
     pickle.dump(dgms, open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' + current_file), "wb"))
     return dgms, current_file
 
+
 if __name__ == '__main__':
-    from functools import partial
-    from tqdm import tqdm
+    # TODO: store these commands in a separate function, then call a single function in this block
     num_structures = 8
     persistence = partial(main, num_structures = 8)
     with Pool(processes =4) as pool:
-    #    import nose; nose.tools.set_trace()
         results = list(tqdm(pool.imap(persistence, np.arange(0, num_structures)), total = num_structures))
-    #    results = pool.map(persistence, np.arange(0, num_structures))
     """
     for dgms, filename in results:
         filename = filename[:-4]

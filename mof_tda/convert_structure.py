@@ -25,7 +25,7 @@ def convert_cif_to_xyz(structure_list: str) -> None:
             # Go to path that contains all the cif files
             os.chdir(os.path.join(MOF_TDA_PATH, 'all_MOFs'))
             atoms = ase.io.read(line)  # read in cif line
-            ase.io.write(os.path.join(MOF_TDA_PATH, './xyz_structures/' + stripped_line + '.xyz'), atoms)
+            ase.io.write(os.path.join(MOF_TDA_PATH, 'xyz_structures',  stripped_line+'.xyz'), atoms)
 
 
 if __name__ == '__main__':

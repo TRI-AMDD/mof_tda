@@ -1,5 +1,5 @@
 import os
-from typing import List, Tuple
+from typing import List
 from mof_tda import MOF_TDA_PATH
 import numpy as np
 
@@ -25,6 +25,8 @@ def lattice_param(filepath: str) -> List[np.ndarray]:
         List of lattice constants
     """
     with open(filepath, 'r') as xyz:
+        # TODO: I think you intend to access the first element of an iterator here, probably easier to do
+        #    something like xyz.readlines()[1] or the like
         for i, line in enumerate(xyz):
             if i == 1:
                 new_line = line.split()
@@ -34,9 +36,9 @@ def lattice_param(filepath: str) -> List[np.ndarray]:
     return [row_1, row_2, row_3]
 
 
-def copies_to_fill_cell(cell_size: int, filepath: str, lattice_param: List[float]) -> List[float]:
+def copies_to_fill_cell(cell_size: int, filepath: str, lattice_param: List[float]) -> List[np.ndarray]:
     """
-    Have a cubic cell, and fill in periodic copies up to the target cell cize
+    Have a cubic cell, and fill in periodic copies up to the target cell size
     Create periodic copies of each cell until past the target size, and then remove
     the atoms outside of the target cell size
     Alternative: Get approximate LCM of all structures, but this could blow up quickly
@@ -45,6 +47,7 @@ def copies_to_fill_cell(cell_size: int, filepath: str, lattice_param: List[float
         cell_size (int): max dimensions of cell in x/y/z positive direction
         filepath (str): name of file
         lattice_param (list of floats): a,b,c lattice parameters
+
     Returns:
         nxnxn cubic cell with coordinates
     """
@@ -82,6 +85,7 @@ def copies_to_fill_cell(cell_size: int, filepath: str, lattice_param: List[float
     new_cell += np.random.standard_normal(new_cell.shape) * .00001
 
     return new_cell
+
 
 if __name__ == '__main__':
     # TODO: is this in a unit test?  If so, delete.

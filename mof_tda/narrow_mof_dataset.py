@@ -4,14 +4,18 @@ import pickle
 from mof_tda import MOF_TDA_PATH
 import os
 
+
+# TODO: duplicated code, reuse other module vars and delete
 MOF_FILES = 'allMOFs_without_disorder.txt'
 filepath = []
-with open(os.path.join(MOF_TDA_PATH, MOF_FILES),'r') as f:
+with open(os.path.join(MOF_TDA_PATH, MOF_FILES), 'r') as f:
     for line in f:
         line = line.strip()
         filepath.append(line)
 
-def get_lowest_volumes(n : int, total_volume : List[float], mof_list) -> Tuple[List[str],List[float]]:
+
+# TODO: reformat docstring properly
+def get_lowest_volumes(n: int, total_volume: List[float], mof_list) -> Tuple[List[str], List[float]]:
     """
     Return the lowest volume structures, that can then be used for persistence diagrams
 
@@ -30,6 +34,7 @@ def get_lowest_volumes(n : int, total_volume : List[float], mof_list) -> Tuple[L
         for item in new_mof_list:
             f.write("%s\n" % item)
     return new_mof_list, sorted_lowest_n
+
 
 if __name__ == '__main__':
     total_volume = pickle.load(open('tot_volume.pkl', 'rb'))
