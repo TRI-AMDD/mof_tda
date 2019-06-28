@@ -4,15 +4,15 @@ from mof_tda import MOF_TDA_PATH
 import numpy as np
 
 MOF_FILES = os.path.join(MOF_TDA_PATH, 'subset_mof_list.txt')
-filepaths = []
+DEFAULT_FILEPATHS = []
 with open(MOF_FILES,'r') as f:
     for line in f:
         line = line.strip()
-        stripped_line = line[:-4] #strip .cif off
-        filepaths.append(stripped_line + ".xyz")
+        stripped_line = line[:-4]  # strip .cif off
+        DEFAULT_FILEPATHS.append(stripped_line + ".xyz")
 
 
-def lattice_param(filepath : str) -> List[float]:
+def lattice_param(filepath: str) -> List[float]:
     """
     Return lattice constants for each crystal structure
     Note: this can be replaced with pymatgen
@@ -87,10 +87,10 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
     return new_cell
 
 if __name__ == '__main__':
-    lattice_csts = lattice_param(filepath[0])
+    lattice_csts = lattice_param(DEFAULT_FILEPATHS[0])
     print(lattice_csts)
     size = 50
-    new_cell = copies_to_fill_cell(size, filepath[0], lattice_csts)
+    new_cell = copies_to_fill_cell(size, DEFAULT_FILEPATHS[0], lattice_csts)
     print(len(new_cell))
     from pymatgen import Structure, Lattice
     from pymatgen.util.coord import find_in_coord_list_pbc
