@@ -19,6 +19,7 @@ import os
 
 MOFDB_URL = "https://mof.tech.northwestern.edu"
 
+
 def fetch_mofdb_isotherm(iso_id):
     """
     Fetches a json document from the MOFDB API for an isotherm
