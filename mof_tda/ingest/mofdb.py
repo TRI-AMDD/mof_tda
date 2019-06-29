@@ -79,7 +79,7 @@ def fetch_preset(output_filename='mofdb_isotherms.json', nproc=8):
     isotherms = fetch_many_docs(iso_ids, nproc=nproc)
 
     # Dump to json
-    dumpfn(isotherms, os.path.join(MOF_TDA_PATH, "ingest", output_filename)
+    dumpfn(isotherms, os.path.join(MOF_TDA_PATH, "ingest", output_filename))
     return isotherms
 
 
