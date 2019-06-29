@@ -1,4 +1,5 @@
 import os
+import math
 from typing import (Any, List)
 import dionysus as d
 import diode
@@ -7,6 +8,8 @@ from mof_tda import MOF_TDA_PATH
 
 MOF_FILES = os.path.join(MOF_TDA_PATH, 'subset_mof_list.txt')
 
+
+# TODO: refactor duplicate code
 filepaths = []
 with open(MOF_FILES, 'r') as f:
     for line in f:
@@ -27,7 +30,21 @@ def get_delaunay_simplices(points: List[List]) -> List[List]:
     return simplices
 
 
-def get_filtration(simplices: List[List]) -> Any:
+def take_square_root(simplices : List[List]) -> List[List]:
+    """
+    Diode returns square roots of distances, so take square roots of these
+
+    Arg:
+        simplices: List of Lists
+        
+    Return:
+        Simplices: List of lists, with distance square rooted
+    """
+    simplices = [(a, math.sqrt(b)) for a, b in simplices]
+    return simplices
+
+
+def get_filtration(simplices : List[List]) -> Any:
     """
     Calculate filtration from simplicial complexes
 
@@ -87,5 +104,6 @@ if __name__=="__main__":
     # Create 100x100x100 cell
     new_cell = copies_to_fill_cell(90, filepaths[0], lattice_csts)
     simplices = get_delaunay_simplices(new_cell)
+    simplices = take_square_root(simplices)
     dgms = get_persistence(simplices)
     print(dgms)

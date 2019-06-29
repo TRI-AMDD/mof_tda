@@ -1,8 +1,5 @@
-import os
 import ase
-import ase.io
 import os
-from typing import List
 from mof_tda import MOF_TDA_PATH
 
 
