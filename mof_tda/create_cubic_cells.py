@@ -2,7 +2,6 @@
 
 import os
 from typing import List
-<<<<<<< HEAD
 from matplotlib import pyplot as plt
 import random
 import numpy as np
@@ -15,7 +14,7 @@ with open(MOF_FILES, 'r') as f:
         line = line.strip()
         stripped_line = line[:-4] #strip .cif off
         FILEPATH.append(stripped_line + ".xyz")
-=======
+
 from mof_tda import MOF_TDA_PATH
 import numpy as np
 
@@ -26,8 +25,6 @@ with open(MOF_FILES,'r') as f:
         line = line.strip()
         stripped_line = line[:-4]  # strip .cif off
         DEFAULT_FILEPATHS.append(stripped_line + ".xyz")
->>>>>>> code_review
-
 
 # TODO: replace this with pymatgen
 def lattice_param(filepath: str) -> List[np.ndarray]:
@@ -50,16 +47,9 @@ def lattice_param(filepath: str) -> List[np.ndarray]:
                 row_1 = np.array([float(new_line[0][9::]), float(new_line[1]), float(new_line[2])])
                 row_2 = np.array([float(new_line[3]), float(new_line[4]), float(new_line[5])])
                 row_3 = np.array([float(new_line[6]), float(new_line[7]), float(new_line[8][:-1])])
-<<<<<<< HEAD
     return[row_1, row_2, row_3]
 
-def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[float]) -> List[float]:
-=======
-    return [row_1, row_2, row_3]
-
-
 def copies_to_fill_cell(cell_size: int, filepath: str, lattice_param: List[float]) -> List[np.ndarray]:
->>>>>>> code_review
     """
     Have a cubic cell, and fill in periodic copies up to the target cell size
     Create periodic copies of each cell until past the target size, and then remove
