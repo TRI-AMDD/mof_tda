@@ -1,9 +1,11 @@
 from pymatgen import Structure, Molecule
 from mof_tda.create_cubic_cells import lattice_param as lattice_param_xyz
 import numpy as np
-from typing import List, Tuple
+from typing import List
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
+
+# TODO: use whatever you need from here, delete everything else
 def lattice_param(filepath : str) -> List[float]:
     """
     Lattice constants for each parameter

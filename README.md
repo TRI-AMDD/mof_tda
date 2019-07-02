@@ -18,9 +18,11 @@ python setup.py develop
 
 ### Linux
 
-Install CGAL/CMake through apt
+Install CGAL/CMake through apt and then setup.py develop
 
 ```angular2
-# TODO: FIXME
-apt-get install cgal cmake
+$ apt-get install cgal cmake gcc g++
+$ export CXX=/usr/bin/g++
+$ export CC=/usr/bin/gcc
+$ python setup.py develop
 ```

@@ -4,6 +4,8 @@ import pickle
 from mof_tda import MOF_TDA_PATH
 import os
 
+
+# TODO: duplicated code, reuse other module vars and delete
 MOF_FILES = 'allMOFs_without_disorder.txt'
 FILEPATH = []
 with open(os.path.join(MOF_TDA_PATH, MOF_FILES), 'r') as f:
@@ -32,6 +34,7 @@ def get_lowest_volumes(num_structures : int, total_volume : List[float], mof_lis
         for item in new_mof_list:
             mof_struct.write("%s\n" % item)
     return new_mof_list, sorted_lowest_n
+
 
 if __name__ == '__main__':
     TOTAL_VOLUME = pickle.load(open('tot_volume.pkl', 'rb'))

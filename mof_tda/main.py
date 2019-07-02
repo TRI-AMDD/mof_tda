@@ -3,15 +3,17 @@ Main function: goes from cif file to eventual persistence diagram
 """
 import os
 import pickle
-from typing import List, Any
-from multiprocessing import Pool
+from typing import Any, List
+from tqdm import tqdm
 
 from mof_tda import MOF_TDA_PATH
 from mof_tda.narrow_mof_dataset import get_lowest_volumes
-from mof_tda.cif2xyz_ase import cif2xyz
+from mof_tda.convert_structure import convert_cif_to_xyz
 from mof_tda.create_cubic_cells import copies_to_fill_cell, lattice_param
-from mof_tda.get_delaunay_triangulation import get_delaunay_simplices, get_persistence, \
-                                        take_square_root
+
+from mof_tda.get_delaunay_triangulation import get_delaunay_simplices, get_persistence, take_square_root
+from multiprocessing import Pool
+
 
 def get_xyz_structures(num_structures : int) -> List[str]:
     """
@@ -23,6 +25,8 @@ def get_xyz_structures(num_structures : int) -> List[str]:
     Return:
         List containing names of xyz files
     """
+    # TODO: similarly here, replace the intermediate text files with glob commands for getting
+    #       filenames
     filepath = []
     path_name = 'allMOFs_without_disorder.txt'
     with open(os.path.join(MOF_TDA_PATH, path_name), 'r') as all_mofs:
@@ -30,23 +34,25 @@ def get_xyz_structures(num_structures : int) -> List[str]:
             line = line.strip()
             filepath.append(line)
 
-    #Pre-processing to get volume distribution of MOFs
-    total_volume = pickle.load(open(os.path.join(MOF_TDA_PATH,'tot_volume.pkl'), \
-    'rb')) #type: List[float]
+    # Pre-processing to get volume distribution of MOFs
+    total_volume = pickle.load(open(os.path.join(MOF_TDA_PATH,'tot_volume.pkl'), 'rb'))
     lowest_mof_list, volumes = get_lowest_volumes(num_structures, total_volume, filepath)
 
-    cif2xyz(os.path.join(MOF_TDA_PATH, 'mof_structures.txt'))
+    # MOF files to be used are printed out to "mof_structures.txt": convert to xyz
+    convert_cif_to_xyz(os.path.join(MOF_TDA_PATH, 'mof_structures.txt'))
 
     calculation_filepath = []
     mof_files = os.path.join(MOF_TDA_PATH, 'mof_structures.txt')
     with open(mof_files, 'r') as mof_files:
         for line in mof_files:
             line = line.strip()
-            stripped_line = line[:-4] #strip .cif off
+            stripped_line = line[:-4]  # strip .cif off
             calculation_filepath.append(stripped_line + ".xyz")
     return calculation_filepath
 
-#@profile
+
+# TODO: rename this file and function to something descriptive of what it's doing.
+#       "main" as a function title is very rarely necessary in python
 def main(xyz_file) -> Any:
     """
     Execute main code for function by reading an xyz file and returning persistence diagram
@@ -55,7 +61,7 @@ def main(xyz_file) -> Any:
 
     Return: persistence diagram from Delaunay triangulation, current file name
     """
-    #Point to xyz_structures directory
+    # Point to xyz_structures directory
     os.chdir(os.path.join(MOF_TDA_PATH, 'xyz_structures/'))
     cubic_cell_dimension = 20
     current_file = xyz_file
@@ -69,28 +75,29 @@ def main(xyz_file) -> Any:
         pickle.dump(dgms, open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' + current_file), \
                     "wb"))
         with open(os.path.join(MOF_TDA_PATH, "able_to_compute.txt"), "a+") as able:
-            able.write("%s\n" % (current_file))
-        #return none so output isn't stored in memorymkdir one
+            able.write("%s\n" % current_file)
+
+        # Return none so output isn't stored in memory
         del dgms
         return None
     except Exception as exception:
         with open(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt"), "a+") as unable:
             unable.write("{}: {}\n".format(current_file, exception))
 
+
 if __name__ == '__main__':
-    #rm compute/unable to compute files
+    # TODO: store these commands in a separate function, then call a single function in this block
+    # Remove compute/unable to compute files
     if os.path.exists(os.path.join(MOF_TDA_PATH, "able_to_compute.txt")):
         os.remove(os.path.join(MOF_TDA_PATH, "able_to_compute.txt"))
     if os.path.exists(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt")):
         os.remove(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt"))
-    NUM_STRUCTURES = 8
-    CALCULATION_FILEPATH = get_xyz_structures(NUM_STRUCTURES)
-
-    from tqdm import tqdm
+    num_structures = 4
+    calculation_filepath = get_xyz_structures(num_structures)
     with Pool(processes = 4) as pool:
-        PERSISTENCE = list(tqdm(pool.imap(main, CALCULATION_FILEPATH), total=NUM_STRUCTURES))
-        #size = sys.getsizeof(persistence)
+        persistence = list(tqdm(pool.imap(main, calculation_filepath), total=num_structures))
 
+    # TODO: remove these if unused, or store in a separate function for testing
     """
     #not parallelized
     for i in range(num_structures):
