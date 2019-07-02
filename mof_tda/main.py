@@ -83,14 +83,14 @@ if __name__ == '__main__':
         os.remove(os.path.join(MOF_TDA_PATH, "able_to_compute.txt"))
     if os.path.exists(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt")):
         os.remove(os.path.join(MOF_TDA_PATH, "unable_to_compute.txt"))
-    NUM_STRUCTURES = 10
+    NUM_STRUCTURES = 8
     CALCULATION_FILEPATH = get_xyz_structures(NUM_STRUCTURES)
-    """
+
     from tqdm import tqdm
     with Pool(processes = 4) as pool:
-        persistence = list(tqdm(pool.imap(main, calculation_filepath), total = num_structures))
+        PERSISTENCE = list(tqdm(pool.imap(main, CALCULATION_FILEPATH), total=NUM_STRUCTURES))
         #size = sys.getsizeof(persistence)
-    """
+
     """
     #not parallelized
     for i in range(num_structures):
