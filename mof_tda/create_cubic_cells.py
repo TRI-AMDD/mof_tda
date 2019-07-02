@@ -1,16 +1,19 @@
+""" This module creates periodic copies of a structure to fit a cubic box """
+
 import os
-from typing import List, Tuple
-from mof_tda import MOF_TDA_PATH
-import numpy as np
+from typing import List
 from matplotlib import pyplot as plt
+import random
+import numpy as np
+from mof_tda import MOF_TDA_PATH
 
 MOF_FILES = os.path.join(MOF_TDA_PATH, 'subset_mof_list.txt')
-filepath = []
-with open(MOF_FILES,'r') as f:
+FILEPATH = []
+with open(MOF_FILES, 'r') as f:
     for line in f:
         line = line.strip()
         stripped_line = line[:-4] #strip .cif off
-        filepath.append(stripped_line + ".xyz")
+        FILEPATH.append(stripped_line + ".xyz")
 
 def lattice_param(filepath : str) -> List[float]:
     """
@@ -25,14 +28,10 @@ def lattice_param(filepath : str) -> List[float]:
     with open(filepath, 'r') as xyz:
         for i, line in enumerate(xyz):
             if i == 1:
-                newLine = line.split()
-#                a = float(newLine[0][9::]) #remove Lattice=" part
-                row_1 = np.array([float(newLine[0][9::]), float(newLine[1]), float(newLine[2])])
-                row_2 = np.array([float(newLine[3]), float(newLine[4]), float(newLine[5])])
-                row_3 = np.array([float(newLine[6]), float(newLine[7]), float(newLine[8][:-1])])
-#                b = float(newLine[4])
-#                c = float(newLine[8][:-1])
-#    return[a,b,c]
+                new_line = line.split()
+                row_1 = np.array([float(new_line[0][9::]), float(new_line[1]), float(new_line[2])])
+                row_2 = np.array([float(new_line[3]), float(new_line[4]), float(new_line[5])])
+                row_3 = np.array([float(new_line[6]), float(new_line[7]), float(new_line[8][:-1])])
     return[row_1, row_2, row_3]
 
 def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[float]) -> List[float]:
@@ -50,10 +49,10 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
         nxnxn cubic cell with coordinates
     """
     #import nose; nose.tools.set_trace()
-    with open(filepath) as f:
-        data = f.readlines()
+    with open(filepath) as struct:
+        data = struct.readlines()
 
-    a,b,c = lattice_param
+    a, b, c = lattice_param
 
     #Read in the initial file
     data = data[2:] #strip the first 2 lines before the coordinates
@@ -79,19 +78,20 @@ def copies_to_fill_cell(cell_size: int, filepath : str, lattice_param: List[floa
 
     #Filter out all atoms outside of the cubic box
     #Keep axes at -10 to include negative xyz coordinates from the original cell
-    new_cell = xyz_periodic_total[np.max(xyz_periodic_total, axis = 1) < cell_size]
-    new_cell = new_cell[np.min(new_cell, axis = 1) > -10]
+    new_cell = xyz_periodic_total[np.max(xyz_periodic_total, axis=1) < cell_size]
+    new_cell = new_cell[np.min(new_cell, axis=1) > -10]
 
+    np.random.seed(42)
     new_cell += np.random.standard_normal(new_cell.shape) * .00001
 
     return new_cell
 
 if __name__ == '__main__':
-    lattice_csts = lattice_param(filepath[0])
-    print(lattice_csts)
-    size = 50
-    new_cell = copies_to_fill_cell(size, filepath[0], lattice_csts)
-    print(len(new_cell))
+    LATTICE_CSTS = lattice_param(FILEPATH[0])
+    print(LATTICE_CSTS)
+    SIZE = 50
+    NEW_CELL = copies_to_fill_cell(SIZE, FILEPATH[0], LATTICE_CSTS)
+    print(len(NEW_CELL))
     from pymatgen import Structure, Lattice
     from pymatgen.util.coord import find_in_coord_list_pbc
     #ccc_struct = Structure(Lattice.cubic(size), ["C"]*len(new_cell),
