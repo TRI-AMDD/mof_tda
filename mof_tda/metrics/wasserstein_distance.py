@@ -71,3 +71,10 @@ if __name__ == '__main__':
 
     wd_1d = calculate_wasserstein(structure_list)
     print(wd_1d)
+
+    # Write out to a csv file
+    import csv
+    with open('wasserstein_distances_1d.csv', 'w') as wd_file:
+        writer = csv.writer(wd_file)
+        for key, value in wd_1d.items():
+            writer.writerow([key, value])
