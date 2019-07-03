@@ -48,8 +48,9 @@ def calculate_wasserstein(structure_list : List[str]) -> List[float]:
     """
     from itertools import combinations
 
-    from collections import defaultdict
-    wd_1d = defaultdict(list)
+    # from collections import defaultdict
+    # wd_1d = defaultdict(list)
+    wd_1d = {}
     for combo in combinations(os.listdir(os.path.join(MOF_TDA_PATH, \
                                     'oned_persistence/')), 2):
         # Check if the structures are in the original structure list
