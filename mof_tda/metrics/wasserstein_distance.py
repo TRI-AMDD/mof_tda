@@ -6,7 +6,9 @@ from typing import Any, List, Dict
 import dionysus as d
 import pickle
 import numpy as np
+from tqdm import tqdm
 from mof_tda import MOF_TDA_PATH
+from multiprocessing import Pool
 
 def store_structures(filename : str) -> List[str]:
     """
@@ -127,5 +129,6 @@ if __name__ == '__main__':
     write_to_csv(wd_1d)
     distance_matrix = construct_matrix(wd_1d, structure_list)
     print(distance_matrix)
+
     # save the distance matrix
     # np.save('one_wdist_matrix_1d', distance_matrix)
