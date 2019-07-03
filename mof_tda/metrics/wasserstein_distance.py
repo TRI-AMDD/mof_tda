@@ -2,7 +2,7 @@
 Calculate wasserstein distance (a similarity metric) between persistence diagrams
 """
 import os
-from typing import Any, List
+from typing import Any, List, Dict
 import dionysus as d
 import pickle
 from mof_tda import MOF_TDA_PATH
@@ -31,8 +31,10 @@ def wasserstein_distance_1d(pers_diag_1, pers_diag_2) -> float:
         pers_diag_1, pers_diag_2 :: persistence diagrams
     Return:
         Wasserstein distance :: float
+
+    Wasserstein distance returns a NN approximation solution (w.r.t. delta value)
     """
-    wasserstein_distance = d.wasserstein_distance(pers_diag_1[1], pers_diag_2[2], \
+    wasserstein_distance = d.wasserstein_distance(pers_diag_1[1], pers_diag_2[1], \
                                                     q=1, delta=0.2)
     return wasserstein_distance
 
@@ -64,6 +66,7 @@ def calculate_wasserstein(structure_list : List[str]) -> List[float]:
             # Hash structure_list tuple combos as key, value: wasserstein_distance
             wd_1d[combo] = wasserstein_distance
     return wd_1d
+
 
 if __name__ == '__main__':
     structure_list = store_structures('lowest_8.txt')
