@@ -5,6 +5,7 @@ import os
 from typing import Any, List, Dict
 import dionysus as d
 import pickle
+import numpy as np
 from mof_tda import MOF_TDA_PATH
 
 def store_structures(filename : str) -> List[str]:
@@ -38,7 +39,7 @@ def wasserstein_distance_1d(pers_diag_1, pers_diag_2) -> float:
                                                     q=1, delta=0.2)
     return wasserstein_distance
 
-def calculate_wasserstein(structure_list : List[str]) -> List[float]:
+def calculate_wasserstein(structure_list : List[str]) -> Dict:
     """
     Calculate wasserstein distances for all combinations of structure in text file
 
@@ -67,17 +68,64 @@ def calculate_wasserstein(structure_list : List[str]) -> List[float]:
             wd_1d[combo] = wasserstein_distance
     return wd_1d
 
+def write_to_csv(struct_tuple_distance : Dict) -> None:
+    """
+    Take in dict of {(struct1_string, struct2_string) : float} and store to csv file
 
-if __name__ == '__main__':
-    structure_list = store_structures('lowest_8.txt')
-    print(structure_list)
+    Arg:
+        Dict{Tuple[string, string] : float}
 
-    wd_1d = calculate_wasserstein(structure_list)
-    print(wd_1d)
-
-    # Write out to a csv file
+    Return:
+        None, just store to a csv file
+    """
     import csv
     with open('wasserstein_distances_1d.csv', 'w') as wd_file:
         writer = csv.writer(wd_file)
-        for key, value in wd_1d.items():
+        for key, value in struct_tuple_distance.items():
             writer.writerow([key, value])
+    return None
+
+def construct_matrix(wd_1d : Dict, structure_list) -> np.array:
+    """
+    Take in hash table of {tuple(string, string) : float},
+    match up each tuple entry to a number (via another hash table)
+    and construct a distance matrix from this
+
+    Arg:
+        wd_1d :: Dict{Tuple[string, string] : float}
+        structure_list :: List[string]
+
+    Return:
+        distance_matrix :: np.array
+    """
+    # Give each structure an index, based on order in the original file
+    index_to_structure = {} # Dict{string : float}
+    for i, structure in enumerate(structure_list):
+        index_to_structure[structure] = i
+
+    total = len(structure_list)
+    distance_matrix = np.zeros((total, total))
+    # Replace structure names with their index
+    index_to_value = {(index_to_structure[key1], index_to_structure[key2]): value \
+                    for (key1, key2), value in wd_1d.items()}
+    for (struct1, struct2), distance in index_to_value.items():
+        distance_matrix[struct1, struct2] = distance
+
+    for i in range(total):
+        for j in range(i, total):
+            # if loop so that it's agnostic to original order
+            if distance_matrix[i][j] != 0:
+                distance_matrix[j][i] = distance_matrix[i][j]
+            else:
+                distance_matrix[i][j] = distance_matrix[j][i]
+
+    return distance_matrix
+
+if __name__ == '__main__':
+    structure_list = store_structures('lowest_8.txt')
+    wd_1d = calculate_wasserstein(structure_list)
+    write_to_csv(wd_1d)
+    distance_matrix = construct_matrix(wd_1d, structure_list)
+    print(distance_matrix)
+    # save the distance matrix
+    # np.save('one_wdist_matrix_1d', distance_matrix)
