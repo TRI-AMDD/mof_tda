@@ -2,7 +2,7 @@
 Calculate wasserstein distance (a similarity metric) between persistence diagrams
 """
 import os
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Tuple
 import dionysus as d
 import pickle
 import numpy as np
@@ -41,6 +41,23 @@ def wasserstein_distance_1d(pers_diag_1, pers_diag_2) -> float:
                                                     q=1, delta=0.2)
     return wasserstein_distance
 
+def multiprocessing_func(combo: Tuple[str, str]) -> float:
+    """
+    Multiprocess calculation of wasserstein distance between persistence diagrams
+    (i.e. calculate multiple at once)
+
+    Arg:
+        Tuple[string, string] consisting of name of each structure
+    Return:
+        Wasserstein distance between each tuple
+    """
+    pers_diag_1 = pickle.load(open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' \
+                            + combo[0]), 'rb'))
+    pers_diag_2 = pickle.load(open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' \
+                            + combo[1]), 'rb'))
+    wasserstein_distance = wasserstein_distance_1d(pers_diag_1, pers_diag_2)
+    return wasserstein_distance
+
 def calculate_wasserstein(structure_list : List[str]) -> Dict:
     """
     Calculate wasserstein distances for all combinations of structure in text file
@@ -56,19 +73,17 @@ def calculate_wasserstein(structure_list : List[str]) -> Dict:
     # from collections import defaultdict
     # wd_1d = defaultdict(list)
     wd_1d = {}
-    for combo in combinations(os.listdir(os.path.join(MOF_TDA_PATH, \
-                                    'oned_persistence/')), 2):
-        # Check if the structures are in the original structure list
-        if all(x in structure_list for x in (combo[0], combo[1])):
-            pers_diag_1 = pickle.load(open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' \
-                                    + combo[0]), 'rb'))
-            pers_diag_2 = pickle.load(open(os.path.join(MOF_TDA_PATH, 'oned_persistence/' \
-                                    + combo[1]), 'rb'))
-            wasserstein_distance = wasserstein_distance_1d(pers_diag_1, pers_diag_2)
+    # fill list with all the combinations from structure_list
+    combos = list(combinations(structure_list, 2))
 
-            # Hash structure_list tuple combos as key, value: wasserstein_distance
-            wd_1d[combo] = wasserstein_distance
-    return wd_1d
+    #parallelize to calculate wasserstein distance
+    from multiprocessing import Pool
+    with Pool(processes=4) as pool:
+        wds_1d = list(tqdm(pool.imap(multiprocessing_func, combos), total=len(combos)))
+
+    # Hash structure_list tuple combos as key, value: wasserstein_distance
+    wd_dict = {combo: wd_1d for combo, wd_1d in zip(combos, wds_1d)}
+    return wd_dict
 
 def write_to_csv(struct_tuple_distance : Dict) -> None:
     """
@@ -123,12 +138,18 @@ def construct_matrix(wd_1d : Dict, structure_list) -> np.array:
 
     return distance_matrix
 
-if __name__ == '__main__':
-    structure_list = store_structures('lowest_8.txt')
-    wd_1d = calculate_wasserstein(structure_list)
-    write_to_csv(wd_1d)
-    distance_matrix = construct_matrix(wd_1d, structure_list)
-    print(distance_matrix)
+def run_code(filename: str):
+    """
+    Arg: Give filename of file that holds names of all the structures
 
-    # save the distance matrix
-    # np.save('one_wdist_matrix_1d', distance_matrix)
+    Return: distance matrix
+    """
+    structure_list = store_structures(filename)
+    wd_dict = calculate_wasserstein(structure_list)
+    # can also write to csv here
+    # TO DO: separate mapping function, i.e. row/column index to compound, such as in csv
+    distance_matrix = construct_matrix(wd_dict, structure_list)
+    return distance_matrix
+if __name__ == '__main__':
+    distance_matrix = run_code('lowest_8.txt')
+    print(distance_matrix)
