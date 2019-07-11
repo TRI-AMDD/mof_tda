@@ -38,7 +38,7 @@ def fetch_mofdb_cif(mof_name):
     return response.content.decode()
 
 
-def fetch_mofdb_isotherm(iso_id, add_cif=True):
+def fetch_mofdb_isotherm(iso_id):
     """
     Fetches a json document from the MOFDB API for an isotherm
     for a given structure
