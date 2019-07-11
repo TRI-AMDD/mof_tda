@@ -13,14 +13,32 @@ import json
 from tqdm import tqdm
 from multiprocessing import Pool
 from monty.serialization import dumpfn, loadfn
-from mof_tda import MOF_TDA_PATH
+from monty.shutil import compress_file
+from mof_tda import MOF_TDA_PATH, MOF_TDA_CIF_PATH
 import os
 
 
 MOFDB_URL = "https://mof.tech.northwestern.edu"
 
 
-def fetch_mofdb_isotherm(iso_id):
+def fetch_mofdb_cif(mof_name):
+    """
+    Fetches MOFDB structure according to name key
+
+    Args:
+        mof_name (string): string corresponding to MOF name, e.g.
+            FECWOB_clean
+
+    Returns:
+        cif string corresponding to mof
+
+    """
+    url = "{}/cifs/{}.cif".format(MOFDB_URL, mof_name)
+    response = requests.get(url)
+    return response.content.decode()
+
+
+def fetch_mofdb_isotherm(iso_id, add_cif=True):
     """
     Fetches a json document from the MOFDB API for an isotherm
     for a given structure
@@ -57,7 +75,9 @@ def fetch_many_docs(iso_ids, nproc=1):
         return [fetch_mofdb_isotherm(iso_id) for iso_id in tqdm(iso_ids)]
 
 
-def fetch_preset(output_filename='mofdb_isotherms.json', nproc=8):
+# TODO: Could fetch cifs and isotherms together, refactor
+#       if we end up having to do another big ingestion
+def fetch_preset(output_filename=None, nproc=8, add_structure=True):
     """
     Fetches preset list of docs determined via trial and error,
 
@@ -79,10 +99,50 @@ def fetch_preset(output_filename='mofdb_isotherms.json', nproc=8):
     # Fetch all docs from ids
     isotherms = fetch_many_docs(iso_ids, nproc=nproc)
 
-    # Dump to json
-    dumpfn(isotherms, os.path.join(MOF_TDA_PATH, "ingest", output_filename))
+    # Dump to json if output specified
+    if output_filename is not None:
+        dumpfn(isotherms, output_filename)
+    return isotherms
+
+
+def add_structures(isotherms):
+    """
+
+    Args:
+        isotherms (List): list of isotherm docs, e. g. from
+            fetch_many_docs
+
+    Returns:
+        (List): isotherm data with structures added
+
+    """
+    for isotherm in tqdm(isotherms):
+        # Get structure name/filename
+        mof_name = isotherm['adsorbent']['name']
+        structure_filename = os.path.join(
+            MOF_TDA_CIF_PATH, "{}.cif".format(mof_name))
+        # Read in and add structure cif string if present
+        if os.path.isfile(structure_filename):
+            with open(structure_filename) as f:
+                cif_string = f.read()
+        # If not present, fetch it from db
+        else:
+            cif_string = fetch_mofdb_cif(mof_name)
+
+        isotherm['adsorbent']['cif'] = cif_string
     return isotherms
 
 
 if __name__ == "__main__":
-    fetch_preset()
+    # Initial scraping
+    fname = os.path.join(MOF_TDA_PATH, "ingest", "mofdb_isotherms.json")
+    if not os.path.isfile(fname):
+        isotherms = fetch_preset(fname)
+    else:
+        isotherms = loadfn(fname)
+
+    # Postprocessing with structure add
+    isotherms = add_structures(isotherms)
+    dumpfn(isotherms, "mofdb_isotherms_structure.json")
+    compress_file("mofdb_isotherms_structure.json")
+
