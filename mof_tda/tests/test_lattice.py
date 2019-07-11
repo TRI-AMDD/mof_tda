@@ -40,8 +40,10 @@ class LatticeTest(unittest.TestCase):
             atoms = aaa.get_atoms(structure.get_primitive_structure())
             write_xyz("out.xyz", atoms)
             lattice_params = lattice_param('out.xyz')
+            # TODO: test something about this variable
             output_coords = copies_to_fill_cell(size, 'out.xyz', lattice_params)
 
+    # TODO: delete this if not used
     @unittest.skip
     def test_test_pymatgen(self):
         from mof_tda.test_pymatgen import get_coordinates
