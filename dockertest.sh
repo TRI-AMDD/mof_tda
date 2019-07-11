@@ -2,6 +2,7 @@
 
 # This script is run as the default procedure for testing
 # in the docker container
+set -e
 
 # Run nosetests
 nosetests --with-xunit --all-modules --traverse-namespace \
