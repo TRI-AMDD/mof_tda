@@ -147,9 +147,10 @@ def run_code(filename: str):
     structure_list = store_structures(filename)
     wd_dict = calculate_wasserstein(structure_list)
     # can also write to csv here
+    write_to_csv(wd_dict)
     # TO DO: separate mapping function, i.e. row/column index to compound, such as in csv
     distance_matrix = construct_matrix(wd_dict, structure_list)
     return distance_matrix
 if __name__ == '__main__':
     distance_matrix = run_code('lowest_8.txt')
-    print(distance_matrix)
+    np.save('distance_matrix', distance_matrix)
