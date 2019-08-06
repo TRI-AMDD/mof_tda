@@ -1,4 +1,4 @@
-import ase
+import ase.io
 import os
 from mof_tda import MOF_TDA_PATH
 
