@@ -2,7 +2,7 @@ import unittest
 import os
 import numpy as np
 
-from mof_tda import MOF_TDA_PATH
+from mof_tda import MOF_TDA_PATH, MOF_TDA_TEST_FILE_PATH
 from mof_tda.create_cubic_cells import lattice_param
 from pymatgen import Structure, Lattice
 from monty.tempfile import ScratchDir
@@ -12,8 +12,8 @@ from ase.io.xyz import write_xyz
 
 class LatticeTest(unittest.TestCase):
     def test_lattice(self):
-        xyz_file = os.path.join(MOF_TDA_PATH, "00958972.2016.1250260_1436516_clean.xyz")
-        cif_file = os.path.join(MOF_TDA_PATH, "00958972.2016.1250260_1436516_clean.cif")
+        xyz_file = os.path.join(MOF_TDA_TEST_FILE_PATH, "00958972.2016.1250260_1436516_clean.xyz")
+        cif_file = os.path.join(MOF_TDA_TEST_FILE_PATH, "00958972.2016.1250260_1436516_clean.cif")
         lattice_csts = lattice_param(xyz_file)
         structure = Structure.from_file(cif_file)
         self.assertAlmostEqual(np.linalg.norm(lattice_csts[0]), structure.lattice.a)

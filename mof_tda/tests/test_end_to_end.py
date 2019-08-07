@@ -1,6 +1,7 @@
 import unittest
 import os
 import pickle
+from monty.os import cd
 
 from mof_tda import MOF_TDA_PATH
 from mof_tda.narrow_mof_dataset import get_lowest_volumes
@@ -34,8 +35,9 @@ class EndToEndTest(unittest.TestCase):
                 stripped_line = line[:-4]  # strip .cif off
                 filepaths.append(stripped_line + ".xyz")
 
-        lattice_csts = lattice_param(filepaths[0])
-        new_cell = copies_to_fill_cell(90, filepaths[0], lattice_csts)
+        with cd(os.path.join(MOF_TDA_PATH, "xyz_structures")):
+            lattice_csts = lattice_param(filepaths[0])
+            new_cell = copies_to_fill_cell(90, filepaths[0], lattice_csts)
         simplices = get_delaunay_simplices(new_cell)
         dgms = get_persistence(simplices)
         print(dgms)
