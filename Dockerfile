@@ -17,7 +17,10 @@ WORKDIR /home/mof_tda
 RUN apt-get update && \
     apt-get install -y libcgal-dev cmake gcc g++ git && \
     export CXX=/usr/bin/g++ && \
-    export CC=/usr/bin/gcc
+    export CC=/usr/bin/gcc && \
+    # install mongodb
+    apt-get install -y mongodb
+
 
 COPY . /home/mof_tda
 

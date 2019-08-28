@@ -19,7 +19,7 @@ class MofDbIngestionTest(unittest.TestCase):
 
     def test_add_isotherms_to_db(self):
         add_isotherms_to_database(os.path.join(
-            MOF_TDA_PATH, "ingest", "mofdb_isotherms", "example_mofdb.json"))
+            MOF_TDA_PATH, "ingest", "example_mofdb.json"))
         doc = self.test_db.isotherms.find_one({"adsorbent.name": "FECWOB_clean"})
         self.assertIsNotNone(doc, "Cannot find inserted document")
         self.assertEqual(self.test_db.isotherms.find().count(), 2)
