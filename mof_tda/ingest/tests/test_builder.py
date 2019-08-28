@@ -9,7 +9,9 @@ os.environ["MOF_TDA_DB_MODE"] = "test"
 from mof_tda import MOF_TDA_TEST_FILE_PATH, MOF_TDA_PATH
 from mof_tda.ingest.builder import MofDbStructureBuilder, PersistenceBuilder
 from mof_tda.ingest.docdb import get_db
+from dionysus import Diagram
 from monty.tempfile import ScratchDir
+from monty.json import MSONable
 from pymatgen import Structure
 from maggma.runner import Runner
 
@@ -65,6 +67,18 @@ class BuilderTest(unittest.TestCase):
                 processed.append(persistence_builder.process_item(item))
                 import nose; nose.tools.set_trace()
 
+
+class PersistenceDiagram(Diagram, MSONable):
+    def as_dict(self):
+        return {
+            "@class": "Diagram",
+            "@module": "dionysus",
+            "points": [(point.birth, point.death) for point in self]
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d['points'])
 
 if __name__ == '__main__':
     unittest.main()
