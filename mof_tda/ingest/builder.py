@@ -6,8 +6,10 @@ with the MOFDB
 """
 import argparse
 import os
+from glob import glob
 
 from monty.json import jsanitize
+from pymatgen import Structure
 from mof_tda import MOF_TDA_PATH
 from mof_tda.ingest.docdb import get_db
 from maggma.builder import Builder
@@ -24,13 +26,22 @@ class MofDbStructureBuilder(Builder):
         self.incremental = incremental
 
     def get_items(self):
-        pass
+        pattern = os.path.join(self.source, "*.cif")
+        # TODO: add incremental logic
+        return glob(pattern)
 
     def process_item(self, item):
-        pass
+        structure = Structure.from_file(item)
+        # Get name from file without extension
+        name = os.path.split(item)[-1]
+        name = os.path.splitext(name)[0]
+        doc = {"name": name,
+               "structure": structure}
+        return doc
 
-    def update_targets(self):
-        pass
+    def update_targets(self, items):
+        sanitized = jsanitize(items, strict=True)
+        self.target.insert_many(sanitized)
 
 
 class PersistenceBuilder(Builder):
