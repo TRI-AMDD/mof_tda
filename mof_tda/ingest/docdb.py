@@ -31,8 +31,8 @@ def get_config():
         secret = client.get_secret_value(SecretId=secret_name)
         return json.loads(secret['SecretString'])
 
-    elif MOF_TDA_DB_MODE.lower() == "local":
-        return {"hostname": "localhost",
+    elif MOF_TDA_DB_MODE.lower() in ["local", "test"]:
+        return {"host": "localhost",
                 "port": 27017,
                 "username": None,
                 "password": None}
@@ -44,12 +44,15 @@ def get_db():
     prescribed database mode
 
     Returns:
-
+        (Database): mongo database
 
     """
     config = get_config()
     client = MongoClient(**config)
-    return client["mof_tda"]
+    if MOF_TDA_DB_MODE in ["local", "aws"]:
+        return client["mof_tda"]
+    else:
+        return client["test_mof_tda"]
 
 
 def add_isotherms_to_database(filename=None):
@@ -65,8 +68,8 @@ def add_isotherms_to_database(filename=None):
         "mofdb_isotherms_structure.json")
 
     data = loadfn(filename)
-    db = get_db()
-    db.insert_many(data)
+    collection = get_db()['isotherms']
+    collection.insert_many(data)
 
 
 if __name__ == "__main__":
