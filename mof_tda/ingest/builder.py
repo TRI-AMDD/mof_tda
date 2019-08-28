@@ -73,15 +73,19 @@ class WassersteinDistanceBuilder(Builder):
         pass
 
 
-def get_runner(structure=True, persistence=True, wasserstein=False,
+DEFAULT_STRUCTURE_DIR = os.path.join(MOF_TDA_PATH, "all_MOFs")
+
+
+def get_runner(structure_directory=DEFAULT_STRUCTURE_DIR,
+               persistence=True, wasserstein=False,
                incremental=True, database=None, **kwargs):
     """
     Function to get a runner that runs all of the builders
     in sequence
 
     Args:
-        structure (bool): whether to have a structure builder
-            in the runner sequence
+        structure_directory (str): directory corresponding to structure
+            files associated with the builder
         persistence (bool): whether to have a persistence builder
             in the runner sequence
         wasserstein (bool): whether to have a wasserstein builder
@@ -97,9 +101,9 @@ def get_runner(structure=True, persistence=True, wasserstein=False,
     """
     database = database or get_db()
     builders = []
-    if structure:
+    if structure_directory:
         builder = MofDbStructureBuilder(
-            source=os.path.join(MOF_TDA_PATH, "all_MOFs"),
+            source=structure_directory,
             target=database.structures,
             incremental=incremental
         )
