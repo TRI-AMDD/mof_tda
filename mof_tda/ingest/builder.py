@@ -20,10 +20,10 @@ class MofDbStructureBuilder(Builder):
     """
     Builder for MOF DB structures
     """
-    def __init__(self, structure_directory, output_collection,
+    def __init__(self, structure_directory, structure_collection,
                  incremental=True, **kwargs):
         self.structure_directory = structure_directory
-        self.output_collection = output_collection
+        self.output_collection = structure_collection
         self.incremental = incremental
         # Lazy init
         super().__init__(sources=[],
@@ -41,7 +41,10 @@ class MofDbStructureBuilder(Builder):
             new_pairs = [(filename, name)
                          for filename, name in zip(all_filenames, all_names)
                          if name not in old_names]
-            return list(zip(*new_pairs))[0]
+            if new_pairs:
+                return list(zip(*new_pairs))[0]
+            else:
+                return []
         else:
             return all_filenames
 
@@ -65,20 +68,40 @@ class MofDbStructureBuilder(Builder):
 
 class PersistenceBuilder(Builder):
     """
-    Builder for MOF DB structures
+    Builder for MOF DB persistence diagrams
     """
-    def __init__(self, source, target, incremental=True):
-        self.source = source
-        self.target = target
+    def __init__(self, structure_collection, persistence_collection,
+                 incremental=True, **kwargs):
+        self.structure_collection = structure_collection
+        self.persistence_collection = persistence_collection
         self.incremental = incremental
+        # Lazy init
+        super().__init__(sources=[],
+                         targets=[],
+                         **kwargs)
 
     def get_items(self):
-        pass
+        if self.incremental:
+            new_names = set(self.persistence_collection.distinct("name")) - \
+                set(self.structure_collection.distinct("name"))
+            return self.structure_collection.find(
+                {"name": {"$in": list(new_names)}})
+        else:
+            return self.structure_collection.find()
 
     def process_item(self, item):
-        pass
+        structure = Structure.from_dict(item['structure'])
+        persistence = self.get_persistence_from_structure(structure)
+        return {"name": item['name'],
+                "persistence": persistence
+                }
 
-    def update_targets(self):
+    def update_targets(self, items):
+        sanitized = jsanitize(items, strict=True)
+        self.output_collection.insert_many(sanitized)
+
+    @staticmethod
+    def get_persistence_from_structure(structure):
         pass
 
 
