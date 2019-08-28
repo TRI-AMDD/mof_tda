@@ -50,7 +50,7 @@ class BuilderTest(unittest.TestCase):
                 shutil.copy(os.path.join(
                     MOF_TDA_PATH, "all_MOFs", "{}.cif".format(name)), '.')
             structure_builder = MofDbStructureBuilder(
-                structure_directory=dir,
+                structure_directory=structure_dir,
                 structure_collection=self.test_db.structures)
             runner = Runner([structure_builder])
             runner.run()

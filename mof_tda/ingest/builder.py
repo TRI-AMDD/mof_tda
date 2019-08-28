@@ -89,7 +89,6 @@ class PersistenceBuilder(Builder):
         if self.incremental:
             new_names = set(self.structure_collection.distinct("name")) - \
                 set(self.persistence_collection.distinct("name"))
-            import nose; nose.tools.set_trace()
             return self.structure_collection.find(
                 {"name": {"$in": list(new_names)}})
         else:
@@ -114,7 +113,6 @@ class PersistenceBuilder(Builder):
         #       is that we're stressing the filesystem unnecessarily
         #       and the logic isn't modular at all
         with ScratchDir('.'):
-            import nose; nose.tools.set_trace()
             atoms = AseAtomsAdaptor.get_atoms(structure)
             ase.io.write("temp_structure.xyz", atoms)
             cubic_cell_dimension = 20
