@@ -8,7 +8,7 @@ os.environ["MOF_TDA_DB_MODE"] = "test"
 from mof_tda import MOF_TDA_PATH, MOF_TDA_TEST_FILE_PATH
 from mof_tda.ingest.builder import MofDbStructureBuilder
 from mof_tda.ingest.docdb import get_db
-
+from pymatgen import Structure
 from maggma.runner import Runner
 
 
@@ -25,10 +25,17 @@ class BuilderTest(unittest.TestCase):
         self.test_db.wasserstein_distances.drop()
 
     def test_structure_builder(self):
-        builder = MofDbStructureBuilder(source=MOF_TDA_TEST_FILE_PATH,
-                                        target=self.test_db.structures)
+        builder = MofDbStructureBuilder(structure_directory=MOF_TDA_TEST_FILE_PATH,
+                                        output_collection=self.test_db.structures)
+        self.assertEqual(len(builder.get_items()), 4)
         runner = Runner([builder])
         runner.run()
+        coll = self.test_db.structures
+        doc = coll.find_one({"name": "00958972.2016.1250260_1436516_clean"})
+        self.assertIsNotNone(doc)
+        structure = Structure.from_dict(doc['structure'])
+        self.assertEqual(structure.lattice.a, 5.8405)
+        self.assertEqual(coll.find().count(), 4)
 
 
 if __name__ == '__main__':

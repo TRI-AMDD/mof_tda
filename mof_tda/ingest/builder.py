@@ -20,28 +20,47 @@ class MofDbStructureBuilder(Builder):
     """
     Builder for MOF DB structures
     """
-    def __init__(self, source, target, incremental=True):
-        self.source = source
-        self.target = target
+    def __init__(self, structure_directory, output_collection,
+                 incremental=True, **kwargs):
+        self.structure_directory = structure_directory
+        self.output_collection = output_collection
         self.incremental = incremental
+        # Lazy init
+        super().__init__(sources=[],
+                         targets=[],
+                         **kwargs)
 
     def get_items(self):
-        pattern = os.path.join(self.source, "*.cif")
-        # TODO: add incremental logic
-        return glob(pattern)
+        pattern = os.path.join(self.structure_directory, "*.cif")
+        all_filenames = glob(pattern)
+        # TODO: implement md5 incremental determination?
+        if self.incremental:
+            all_names = [self.get_name_from_path(path)
+                         for path in all_filenames]
+            old_names = set(self.output_collection.distinct("name"))
+            new_pairs = [(filename, name)
+                         for filename, name in zip(all_filenames, all_names)
+                         if name not in old_names]
+            return list(zip(*new_pairs))[0]
+        else:
+            return all_filenames
 
     def process_item(self, item):
         structure = Structure.from_file(item)
-        # Get name from file without extension
-        name = os.path.split(item)[-1]
-        name = os.path.splitext(name)[0]
+        name = self.get_name_from_path(item)
         doc = {"name": name,
                "structure": structure}
         return doc
 
     def update_targets(self, items):
         sanitized = jsanitize(items, strict=True)
-        self.target.insert_many(sanitized)
+        self.output_collection.insert_many(sanitized)
+
+    @staticmethod
+    def get_name_from_path(path):
+        name = os.path.split(path)[-1]
+        name = os.path.splitext(name)[0]
+        return name
 
 
 class PersistenceBuilder(Builder):
