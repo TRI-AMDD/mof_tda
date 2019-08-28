@@ -3,6 +3,5 @@ Dockerfile
 .DS_Store
 .gitignore
 README.md
-mof_tda/all_MOFs
 mof_tda/create_data_frame
 mof_tda/ingest/mofdb_isotherms
