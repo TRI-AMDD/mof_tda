@@ -12,8 +12,8 @@ from monty.serialization import loadfn
 from mof_tda import MOF_TDA_PATH
 
 
-# Specify MOFTDA_DB_MODE
-MOF_TDA_DB_MODE = "local"
+# Specify MOF_TDA_DB_MODE as "local" or "aws"
+MOF_TDA_DB_MODE = os.environ.get("MOF_TDA_DB_MODE", "local")
 
 
 def get_config():
@@ -25,21 +25,31 @@ def get_config():
             with AWS DocDB
 
     """
-    secret_name = "stage/mof_tda/db/main"
-    client = boto3.client("secretsmanager")
-    secret = client.get_secret_value(SecretId=secret_name)
-    return json.loads(secret['SecretString'])
+    if MOF_TDA_DB_MODE.lower() == "aws":
+        secret_name = "stage/mof_tda/db/main"
+        client = boto3.client("secretsmanager")
+        secret = client.get_secret_value(SecretId=secret_name)
+        return json.loads(secret['SecretString'])
+
+    elif MOF_TDA_DB_MODE.lower() == "local":
+        return {"hostname": "localhost",
+                "port": 27017,
+                "username": None,
+                "password": None}
 
 
 def get_db():
     """
+    Gets mongo database object associated with mof tda and
+    prescribed database mode
 
     Returns:
 
+
     """
     config = get_config()
-    client = MongoClient()
-    return client.mof_tda_prod
+    client = MongoClient(**config)
+    return client["mof_tda"]
 
 
 def add_isotherms_to_database(filename=None):
