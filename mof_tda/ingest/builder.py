@@ -1,0 +1,142 @@
+"""
+This module provides a build procedure for the structures,
+persistence diagrams, and wasserstein distances associated
+with the MOFDB
+
+"""
+import argparse
+import os
+
+from monty.json import jsanitize
+from mof_tda import MOF_TDA_PATH
+from mof_tda.ingest.docdb import get_db
+from maggma.builder import Builder
+from maggma.runner import Runner
+
+
+class MofDbStructureBuilder(Builder):
+    """
+    Builder for MOF DB structures
+    """
+    def __init__(self, source, target, incremental=True):
+        self.source = source
+        self.target = target
+        self.incremental = incremental
+
+    def get_items(self):
+        pass
+
+    def process_item(self, item):
+        pass
+
+    def update_targets(self):
+        pass
+
+
+class PersistenceBuilder(Builder):
+    """
+    Builder for MOF DB structures
+    """
+    def __init__(self, source, target, incremental=True):
+        self.source = source
+        self.target = target
+        self.incremental = incremental
+
+    def get_items(self):
+        pass
+
+    def process_item(self, item):
+        pass
+
+    def update_targets(self):
+        pass
+
+
+class WassersteinDistanceBuilder(Builder):
+    """
+    Builder for MOF DB structures
+    """
+    def __init__(self, source, target, incremental=True):
+        self.source = source
+        self.target = target
+        self.incremental = incremental
+        raise NotImplementedError(
+            "Wasserstein Distance builder has not yet been implemented")
+
+    def get_items(self):
+        pass
+
+    def process_item(self, item):
+        pass
+
+    def update_targets(self):
+        pass
+
+
+def get_runner(structure=True, persistence=True, wasserstein=False,
+               incremental=True, database=None, **kwargs):
+    """
+    Function to get a runner that runs all of the builders
+    in sequence
+
+    Args:
+        structure (bool): whether to have a structure builder
+            in the runner sequence
+        persistence (bool): whether to have a persistence builder
+            in the runner sequence
+        wasserstein (bool): whether to have a wasserstein builder
+            in the runner sequence
+        incremental (bool): whether the runners are incremental
+            or total rebuilds
+        database (Database): pymongo database object for the build
+        **kwargs: kwargs for the Runner class
+
+    Returns:
+        (Runner) runner object for the database build
+
+    """
+    database = database or get_db()
+    builders = []
+    if structure:
+        builder = MofDbStructureBuilder(
+            source=os.path.join(MOF_TDA_PATH, "all_MOFs"),
+            target=database.structures,
+            incremental=incremental
+        )
+        builders.append(builder)
+
+    if persistence:
+        builder = PersistenceBuilder(
+            source=database.structures,
+            target=database.persistence,
+            incremental=incremental
+        )
+        builders.append(builder)
+
+    if wasserstein:
+        builder = WassersteinDistanceBuilder(
+            source=database.structures,
+            target=database.persistence,
+            incremental=incremental
+        )
+        builders.append(builder)
+
+    return Runner(builders, **kwargs)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--structure", action="store_true",
+                        help="Build structure database")
+    parser.add_argument("-p", "--persistence", action="store_true",
+                        help="Build persistence database")
+    parser.add_argument("-w", "--wasserstein", action="store_true",
+                        help="Build Wasserstein distance database")
+    parser.add_argument("-i", "--incremental", action="store_true",
+                        help="Whether builder(s) are incremental")
+    args = parser.parse_args()
+    runner = get_runner(args.structure,
+                        args.persistence,
+                        args.wasserstein,
+                        args.incremental)
+    runner.run()

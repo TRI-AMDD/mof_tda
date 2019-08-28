@@ -17,7 +17,8 @@ setup(name="mof_tda",
                         "ase",
                         "tqdm",
                         "boto3",
-                        "pymongo"
+                        "pymongo",
+                        "maggma"
                         ],
       dependency_links=['http://github.com/mrzv/diode/tarball/master#egg=diode']
       )
