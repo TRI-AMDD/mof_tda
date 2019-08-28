@@ -9,9 +9,14 @@ import os
 from glob import glob
 
 from monty.json import jsanitize
+from monty.tempfile import ScratchDir
 from pymatgen import Structure
+from pymatgen.io.ase import AseAtomsAdaptor
 from mof_tda import MOF_TDA_PATH
 from mof_tda.ingest.docdb import get_db
+from mof_tda.main import lattice_param, copies_to_fill_cell, \
+    get_delaunay_simplices, take_square_root, get_persistence
+import ase.io
 from maggma.builder import Builder
 from maggma.runner import Runner
 
@@ -82,8 +87,9 @@ class PersistenceBuilder(Builder):
 
     def get_items(self):
         if self.incremental:
-            new_names = set(self.persistence_collection.distinct("name")) - \
-                set(self.structure_collection.distinct("name"))
+            new_names = set(self.structure_collection.distinct("name")) - \
+                set(self.persistence_collection.distinct("name"))
+            import nose; nose.tools.set_trace()
             return self.structure_collection.find(
                 {"name": {"$in": list(new_names)}})
         else:
@@ -98,11 +104,28 @@ class PersistenceBuilder(Builder):
 
     def update_targets(self, items):
         sanitized = jsanitize(items, strict=True)
-        self.output_collection.insert_many(sanitized)
+        self.persistence_collection.insert_many(sanitized)
 
     @staticmethod
     def get_persistence_from_structure(structure):
-        pass
+        # TODO: we should really have a method which converts
+        #       a native python object to persistence, rather than
+        #       using files as an intermediate.  The consequence here
+        #       is that we're stressing the filesystem unnecessarily
+        #       and the logic isn't modular at all
+        with ScratchDir('.'):
+            import nose; nose.tools.set_trace()
+            atoms = AseAtomsAdaptor.get_atoms(structure)
+            ase.io.write("temp_structure.xyz", atoms)
+            cubic_cell_dimension = 20
+            xyz_file = "temp_structure.xyz"
+            lattice_csts = lattice_param(xyz_file)
+            new_cell = copies_to_fill_cell(cubic_cell_dimension, xyz_file, lattice_csts)
+            simplices = get_delaunay_simplices(new_cell)
+            simplices = take_square_root(simplices)
+            persistence = get_persistence(simplices)
+
+        return persistence
 
 
 class WassersteinDistanceBuilder(Builder):
