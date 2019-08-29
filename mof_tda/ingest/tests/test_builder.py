@@ -7,11 +7,9 @@ import shutil
 os.environ["MOF_TDA_DB_MODE"] = "test"
 
 from mof_tda import MOF_TDA_TEST_FILE_PATH, MOF_TDA_PATH
-from mof_tda.ingest.builder import MofDbStructureBuilder, PersistenceBuilder
+from mof_tda.ingest.builder import MofDbStructureBuilder, PersistenceBuilder, WassersteinDistanceBuilder
 from mof_tda.ingest.docdb import get_db
-from dionysus import Diagram
 from monty.tempfile import ScratchDir
-from monty.json import MSONable
 from pymatgen import Structure
 from maggma.runner import Runner
 
@@ -65,20 +63,39 @@ class BuilderTest(unittest.TestCase):
             processed = []
             for item in items:
                 processed.append(persistence_builder.process_item(item))
-                import nose; nose.tools.set_trace()
+
+            # Try run
+            runner = Runner([persistence_builder])
+            runner.run()
+            self.assertEqual(persistence_builder.get_items().count(), 0)
+
+    @unittest.skip
+    def test_wasserstein_builder(self):
+        # Set up structure/persistence collections
+
+        structures = ["CICYIX_clean", "ZITWIK01_clean", "ZUTBAR03_clean"]
+        with ScratchDir('.') as structure_dir:
+            for name in structures:
+                shutil.copy(os.path.join(
+                    MOF_TDA_PATH, "all_MOFs", "{}.cif".format(name)), '.')
+            structure_builder = MofDbStructureBuilder(
+                structure_directory=structure_dir,
+                structure_collection=self.test_db.structures)
+            persistence_builder = PersistenceBuilder(
+                structure_collection=self.test_db.structures,
+                persistence_collection=self.test_db.persistence)
+            runner = Runner([structure_builder, persistence_builder])
+            runner.run()
+
+            # Try run
+            persistence_builder = WassersteinDistanceBuilder(
+                persistence_collection=self.test_db.persistence,
+                wasserstein_collection=self.test_db.wasserstein)
+            runner = Runner([persistence_builder])
+            runner.run()
+            self.assertEqual(persistence_builder.get_items().count(), 0)
 
 
-class PersistenceDiagram(Diagram, MSONable):
-    def as_dict(self):
-        return {
-            "@class": "Diagram",
-            "@module": "dionysus",
-            "points": [(point.birth, point.death) for point in self]
-        }
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(d['points'])
 
 if __name__ == '__main__':
     unittest.main()

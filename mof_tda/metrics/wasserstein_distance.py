@@ -10,6 +10,7 @@ from tqdm import tqdm
 from mof_tda import MOF_TDA_PATH
 from multiprocessing import Pool
 
+
 def store_structures(filename : str) -> List[str]:
     """
     Store the structures from a file to a list, to be used to calculate wasserstein distances
@@ -27,6 +28,7 @@ def store_structures(filename : str) -> List[str]:
             structure_list.append(line)
     return structure_list
 
+
 def wasserstein_distance_1d(pers_diag_1, pers_diag_2) -> float:
     """
     Takes in 1d persistence diagrams and returns a wasserstein distance
@@ -37,9 +39,10 @@ def wasserstein_distance_1d(pers_diag_1, pers_diag_2) -> float:
 
     Wasserstein distance returns a NN approximation solution (w.r.t. delta value)
     """
-    wasserstein_distance = d.wasserstein_distance(pers_diag_1[1], pers_diag_2[1], \
-                                                    q=1, delta=0.2)
+    wasserstein_distance = d.wasserstein_distance(pers_diag_1[1], pers_diag_2[1],
+                                                  q=1, delta=0.2)
     return wasserstein_distance
+
 
 def multiprocessing_func(combo: Tuple[str, str]) -> float:
     """
@@ -57,6 +60,7 @@ def multiprocessing_func(combo: Tuple[str, str]) -> float:
                             + combo[1]), 'rb'))
     wasserstein_distance = wasserstein_distance_1d(pers_diag_1, pers_diag_2)
     return wasserstein_distance
+
 
 def calculate_wasserstein(structure_list : List[str]) -> Dict:
     """
@@ -85,6 +89,7 @@ def calculate_wasserstein(structure_list : List[str]) -> Dict:
     wd_dict = {combo: wd_1d for combo, wd_1d in zip(combos, wds_1d)}
     return wd_dict
 
+
 def write_to_csv(struct_tuple_distance : Dict) -> None:
     """
     Take in dict of {(struct1_string, struct2_string) : float} and store to csv file
@@ -101,6 +106,7 @@ def write_to_csv(struct_tuple_distance : Dict) -> None:
         for key, value in struct_tuple_distance.items():
             writer.writerow([key, value])
     return None
+
 
 def construct_matrix(wd_1d : Dict, structure_list) -> np.array:
     """
@@ -138,6 +144,7 @@ def construct_matrix(wd_1d : Dict, structure_list) -> np.array:
 
     return distance_matrix
 
+
 def run_code(filename: str):
     """
     Arg: Give filename of file that holds names of all the structures
@@ -151,6 +158,8 @@ def run_code(filename: str):
     # TO DO: separate mapping function, i.e. row/column index to compound, such as in csv
     distance_matrix = construct_matrix(wd_dict, structure_list)
     return distance_matrix
+
+
 if __name__ == '__main__':
     distance_matrix = run_code('lowest_8.txt')
     np.save('distance_matrix', distance_matrix)

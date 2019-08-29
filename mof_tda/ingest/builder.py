@@ -7,18 +7,22 @@ with the MOFDB
 import argparse
 import os
 from glob import glob
+import itertools
 
 from monty.json import jsanitize
 from monty.tempfile import ScratchDir
+from monty.json import MSONable
 from pymatgen import Structure
 from pymatgen.io.ase import AseAtomsAdaptor
 from mof_tda import MOF_TDA_PATH
 from mof_tda.ingest.docdb import get_db
 from mof_tda.main import lattice_param, copies_to_fill_cell, \
     get_delaunay_simplices, take_square_root, get_persistence
+from mof_tda.metrics.wasserstein_distance import wasserstein_distance_1d
 import ase.io
 from maggma.builder import Builder
 from maggma.runner import Runner
+from dionysus import Diagram
 
 
 class MofDbStructureBuilder(Builder):
@@ -130,21 +134,38 @@ class WassersteinDistanceBuilder(Builder):
     """
     Builder for MOF DB structures
     """
-    def __init__(self, source, target, incremental=True):
-        self.source = source
-        self.target = target
+    def __init__(self, persistence_collection, wasserstein_collection,
+                 incremental=True, **kwargs):
+
+        self.persistence_collection = persistence_collection
+        self.wasserstein_collection = wasserstein_collection
         self.incremental = incremental
-        raise NotImplementedError(
-            "Wasserstein Distance builder has not yet been implemented")
+        # Lazy init
+        super().__init__(sources=[],
+                         targets=[],
+                         **kwargs)
 
     def get_items(self):
-        pass
+        # TODO: implement incremental build
+        # TODO: refine mongo query/agg strategy, could probably build a double
+        #       cursor with name or volume ordering
+        names = self.persistence_collection.distinct("name")
+        for name_combo in itertools.combinations(names, 2):
+            name_combo = sorted(name_combo)
+            pers_doc_1 = self.persistence_collection.find_one({"name": name_combo[0]})
+            pers_doc_2 = self.persistence_collection.find_one({"name": name_combo[1]})
+            yield pers_doc_1, pers_doc_2
 
     def process_item(self, item):
-        pass
+        pers_1 = PersistenceDiagram.from_dict(item[0]['persistence'])
+        pers_2 = PersistenceDiagram.from_dict(item[1]['persistence'])
+        wasserstein = wasserstein_distance_1d(pers_1, pers_2)
+        return {"names": [item[0]['name'], item[1]['name']],
+                "wasserstein_distance_1d": wasserstein}
 
-    def update_targets(self):
-        pass
+    def update_targets(self, items):
+        sanitized = jsanitize(items, strict=True)
+        self.wasserstein_collection.insert_many(sanitized)
 
 
 DEFAULT_STRUCTURE_DIR = os.path.join(MOF_TDA_PATH, "all_MOFs")
@@ -200,6 +221,20 @@ def get_runner(structure_directory=DEFAULT_STRUCTURE_DIR,
         builders.append(builder)
 
     return Runner(builders, **kwargs)
+
+
+# TODO: should probably put this somewhere else
+class PersistenceDiagram(Diagram, MSONable):
+    def as_dict(self):
+        return {
+            "@class": "PersistenceDiagram",
+            "@module": "mof_tda.ingest.builder",
+            "points": [(point.birth, point.death) for point in self]
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d['points'])
 
 
 if __name__ == "__main__":
