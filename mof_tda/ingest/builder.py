@@ -20,7 +20,7 @@ from mof_tda.main import lattice_param, copies_to_fill_cell, \
     get_delaunay_simplices, take_square_root, get_persistence
 from mof_tda.metrics.wasserstein_distance import wasserstein_distance_1d
 import ase.io
-from maggma.builder import Builder
+from maggma.builders import Builder
 from maggma.runner import Runner
 from dionysus import Diagram
 
@@ -125,9 +125,12 @@ class PersistenceBuilder(Builder):
             new_cell = copies_to_fill_cell(cubic_cell_dimension, xyz_file, lattice_csts)
             simplices = get_delaunay_simplices(new_cell)
             simplices = take_square_root(simplices)
-            persistence = get_persistence(simplices)
+            diagrams = get_persistence(simplices)
 
-        return persistence
+        # Cast to PersistenceDiagram
+        persistence_diagrams = [PersistenceDiagram.from_diagram(diagram)
+                                for diagram in diagrams]
+        return persistence_diagrams
 
 
 class WassersteinDistanceBuilder(Builder):
@@ -157,8 +160,11 @@ class WassersteinDistanceBuilder(Builder):
             yield pers_doc_1, pers_doc_2
 
     def process_item(self, item):
-        pers_1 = PersistenceDiagram.from_dict(item[0]['persistence'])
-        pers_2 = PersistenceDiagram.from_dict(item[1]['persistence'])
+        # TODO: are these the right ones?
+        pers_1 = [PersistenceDiagram.from_dict(dgm)
+                  for dgm in item[0]['persistence']]
+        pers_2 = [PersistenceDiagram.from_dict(dgm)
+                  for dgm in item[1]['persistence']]
         wasserstein = wasserstein_distance_1d(pers_1, pers_2)
         return {"names": [item[0]['name'], item[1]['name']],
                 "wasserstein_distance_1d": wasserstein}
@@ -225,6 +231,12 @@ def get_runner(structure_directory=DEFAULT_STRUCTURE_DIR,
 
 # TODO: should probably put this somewhere else
 class PersistenceDiagram(Diagram, MSONable):
+    @classmethod
+    def from_diagram(cls, diagram):
+        points = [(point.birth, point.death)
+                  for point in diagram]
+        return cls(points)
+
     def as_dict(self):
         return {
             "@class": "PersistenceDiagram",

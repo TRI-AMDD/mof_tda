@@ -19,7 +19,7 @@ class BuilderTest(unittest.TestCase):
         self.test_db = get_db()
         self.test_db.structures.drop()
         self.test_db.persistence.drop()
-        self.test_db.wasserstein_distances.drop()
+        self.test_db.wasserstein.drop()
 
     def tearDown(self):
         self.test_db.structures.drop()
@@ -67,12 +67,12 @@ class BuilderTest(unittest.TestCase):
             # Try run
             runner = Runner([persistence_builder])
             runner.run()
+            self.test_db.persistence.find_one({})
+            # Test incremental get_items
             self.assertEqual(persistence_builder.get_items().count(), 0)
 
-    @unittest.skip
     def test_wasserstein_builder(self):
         # Set up structure/persistence collections
-
         structures = ["CICYIX_clean", "ZITWIK01_clean", "ZUTBAR03_clean"]
         with ScratchDir('.') as structure_dir:
             for name in structures:
@@ -88,13 +88,16 @@ class BuilderTest(unittest.TestCase):
             runner.run()
 
             # Try run
-            persistence_builder = WassersteinDistanceBuilder(
+            wasserstein_builder = WassersteinDistanceBuilder(
                 persistence_collection=self.test_db.persistence,
                 wasserstein_collection=self.test_db.wasserstein)
-            runner = Runner([persistence_builder])
+            runner = Runner([wasserstein_builder])
             runner.run()
-            self.assertEqual(persistence_builder.get_items().count(), 0)
 
+            self.assertEqual(self.test_db.wasserstein.count(), 3)
+            doc = self.test_db.wasserstein.find_one(
+                {"names": ['CICYIX_clean', 'ZUTBAR03_clean']})
+            self.assertAlmostEqual(doc['wasserstein_distance_1d'], 162.763046264)
 
 
 if __name__ == '__main__':
