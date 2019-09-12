@@ -4,6 +4,8 @@
 # in the docker container
 set -e
 
+service mongodb start
+
 # Run nosetests
 nosetests --with-xunit --all-modules --traverse-namespace \
     --with-coverage --cover-package=mof_tda --cover-inclusive

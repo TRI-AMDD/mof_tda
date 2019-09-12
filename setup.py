@@ -15,7 +15,10 @@ setup(name="mof_tda",
                         "matplotlib",
                         "pymatgen",
                         "ase",
-                        "tqdm"
+                        "tqdm",
+                        "boto3",
+                        "pymongo",
+                        "maggma"
                         ],
       dependency_links=['http://github.com/mrzv/diode/tarball/master#egg=diode']
       )
