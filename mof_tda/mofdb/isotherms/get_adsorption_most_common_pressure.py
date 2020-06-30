@@ -58,42 +58,58 @@ for fname in os.listdir(path):
                     continue
                 elif isotherms_dict[mof]['adsorbates'][0]['formula'] == 'CH4':
                     pressures = set([isotherm_point['pressure'] for isotherm_point in isotherms_dict[mof]['isotherm_data']]) # get unique values
-                    store_temp_adsorption_values_ch4_main = []
-                    store_temp_adsorption_values_ch4_second = []
+
                     if pressures == {0.05, 0.5, 2.5, 0.9, 4.5}: # most common CH4 isotherm
+                        if mof in store_adsorptions_ch4_main:
+                            continue
+                        store_temp_adsorption_values_ch4_main = []
                         for isotherm_point in isotherms_dict[mof]['isotherm_data']:
                             store_temp_adsorption_values_ch4_main.extend([isotherm_point['total_adsorption']])
                         store_adsorptions_ch4_main[mof].append(sorted(store_temp_adsorption_values_ch4_main)) # sort in order, to match pressure
                     elif pressures == {65.0, 100.0}:
+                        if mof in store_adsorptions_ch4_second:
+                            continue
+                        store_temp_adsorption_values_ch4_second = []
                         for isotherm_point in isotherms_dict[mof]['isotherm_data']:
                             store_temp_adsorption_values_ch4_second.extend([isotherm_point['total_adsorption']])
                         store_adsorptions_ch4_second[mof].append(sorted(store_temp_adsorption_values_ch4_second))
 
                 elif isotherms_dict[mof]['adsorbates'][0]['formula'] == 'N2':
                     pressures = set([isotherm_point['pressure'] for isotherm_point in isotherms_dict[mof]['isotherm_data']])
-                    store_temp_adsorption_values_n2_main = []
-                    store_temp_adsorption_values_n2_second = []
+
                     if pressures == {0.09, 0.9}: # most common pressures
+                        if mof in store_adsorptions_n2_main:
+                            continue
+                        store_temp_adsorption_values_n2_main = []
                         for isotherm_point in isotherms_dict[mof]['isotherm_data']:
                             store_temp_adsorption_values_n2_main.extend([isotherm_point['total_adsorption']])
                         store_adsorptions_n2_main[mof].append(sorted(store_temp_adsorption_values_n2_main))
                     elif pressures == {100000.0, 1.0, 23714.0, 4.0, 75.0, 18.0, 1334.0, 5623.0, 316.0}:
+                        if mof in store_adsorptions_n2_second:
+                            continue
+                        store_temp_adsorption_values_n2_second = []
                         for isotherm_point in isotherms_dict[mof]['isotherm_data']:
                             store_temp_adsorption_values_n2_second.extend([isotherm_point['total_adsorption']])
                         store_adsorptions_n2_second[mof].append(sorted(store_temp_adsorption_values_n2_second))
 
                 elif isotherms_dict[mof]['adsorbates'][0]['formula'] == 'H2':
                     pressures = set([isotherm_point['pressure'] for isotherm_point in isotherms_dict[mof]['isotherm_data']])
-                    store_temp_adsorption_values_h2 = []
+
                     if pressures == {2.0, 100.0}:
+                        if mof in store_adsorptions_h2:
+                            continue
+                        store_temp_adsorption_values_h2 = []
                         for isotherm_point in isotherms_dict[mof]['isotherm_data']:
                             store_temp_adsorption_values_h2.extend([isotherm_point['total_adsorption']])
                         store_adsorptions_h2[mof].append(sorted(store_temp_adsorption_values_h2))
 
                 elif isotherms_dict[mof]['adsorbates'][0]['formula'] == 'CO2':
                     pressures = set([isotherm_point['pressure'] for isotherm_point in isotherms_dict[mof]['isotherm_data']])
-                    store_temp_adsorption_values_co2 = []
+
                     if pressures == {0.1, 0.5, 2.5, 0.05, 0.01}:
+                        if mof in store_adsorptions_co2:
+                            continue
+                        store_temp_adsorption_values_co2 = []
                         for isotherm_point in isotherms_dict[mof]['isotherm_data']:
                             store_temp_adsorption_values_co2.extend([isotherm_point['total_adsorption']])
                         store_adsorptions_co2[mof].append(sorted(store_temp_adsorption_values_co2))
